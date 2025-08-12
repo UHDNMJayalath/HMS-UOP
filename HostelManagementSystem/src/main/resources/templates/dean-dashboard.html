@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:x-transition="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dean Dashboard - HMS UoP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="images/Logo.png" type="image/x-icon" />
+</head>
+<body class="bg-gray-100 flex h-screen">
+
+<!-- Sidebar -->
+<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full  text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
+    <!-- Top Section: Logo + Buttons -->
+
+    <div>
+        <div class="p-4 flex items-center border-b border-blue-200 justify-center">
+            <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" >
+        </div>
+    </div>
+
+    <!-- Logout Button at Bottom -->
+    <footer>
+        <div class="text-center mb-6 px-4">
+            <a href="/logout"
+               class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
+                <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+                <span>Log Out</span>
+            </a>
+        </div>
+    </footer>
+
+</div>
+<!-- Overlay for mobile -->
+
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+<!-- Main Content -->
+<div class="flex-1 overflow-auto">
+    <div class="container mx-auto p-6">
+
+        <!-- Header Box -->
+        <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <button id="toggle-btn" class="lg:hidden text-2xl">&#9776;</button>
+                    <img src="images/UniversityLogo.png" alt="University Logo" class="w-12 h-12 object-contain border-none shadow-none outline-none" />
+                    <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+                </div>
+
+                <div class="text-medium text-gray-600">
+                    <!--<span class="font-medium" th:text="${bursarEmail}">User@pdn.ac.lk</span> -->
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Search Form -->
+        <div class="flex justify-center p-6">
+            <div class="w-full max-w-lg">
+                <form th:action="@{/dean-dashboard}" method="get" class="mt-5 sm:flex sm:items-center">
+                    <input
+                            id="q"
+                            name="q"
+                            class="inline w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-3 leading-5 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            placeholder="Student Registration Number"
+                            type="search"
+                            autofocus
+                            th:value="${searchQuery}"
+                    />
+                    <button
+                            type="submit"
+                            class="mb-3 sm:mb-0 sm:ml-3 inline-flex items-center justify-center rounded-md border border-transparent bg-blue-400 px-4 py-2 font-medium text-black shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                        Search
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${error}" class="mb-6">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+                <span class="block sm:inline" th:text="${error}"></span>
+            </div>
+        </div>
+
+        <!-- Student Information -->
+        <div th:if="${student}" class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Student Information</h2>
+            <div class="space-y-3">
+                <div class="flex items-center">
+                    <h3 class="w-40 text-sm font-semibold text-gray-700">Student ID</h3>
+                    <p class="text-sm text-gray-600" th:text="${student.studentId}">S20###</p>
+                </div>
+                <div class="flex items-center">
+                    <h3 class="w-40 text-sm font-semibold text-gray-700">Name</h3>
+                    <p class="text-sm text-gray-600" th:text="${student.name}">John Doe</p>
+                </div>
+               <div class="flex items-center">
+                    <h3 class="w-40 text-sm font-semibold text-gray-700">Hostel</h3>
+                    <p class="text-sm text-gray-600" th:text="${student.currentHostel}">Akbar</p>
+                </div>
+                <div class="flex items-center">
+                    <h3 class="w-40 text-sm font-semibold text-gray-700">Email Address</h3>
+                    <p class="text-sm text-gray-600" th:text="${student.email}">john@pdn.ac.lk</p>
+                </div>
+                <div class="flex items-center">
+                    <h3 class="w-40 text-sm font-semibold text-gray-700">Contact No</h3>
+                    <p class="text-sm text-gray-600" th:text="${student.contact}">07########</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const overlay = document.getElementById('overlay');
+
+    toggleBtn.addEventListener('click', () => {
+
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden', isOpen);
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    });
+
+</script>
+</body>
+</html>
