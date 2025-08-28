@@ -190,25 +190,5 @@
 
 </script>
 
-<script>
-
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggle-btn');
-    const overlay = document.getElementById('overlay');
-
-    toggleBtn.addEventListener('click', () => {
-
-        const isOpen = !sidebar.classList.contains('-translate-x-full');
-
-        sidebar.classList.toggle('-translate-x-full');
-        overlay.classList.toggle('hidden', isOpen);
-    });
-
-    overlay.addEventListener('click', () => {
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-    });
-
-</script>
 </body>
 </html>

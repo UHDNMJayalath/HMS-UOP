@@ -9,13 +9,30 @@ public class Student {
     @Id
     private String studentId;
 
+    private String indexNo;
     private String name;
+    private String LName;
+    private String initials;
+    private String fullName;
+    private String ALDistrict;
+    private String sex;
+    private String ZScore;
+    private String medium;
+    private String NIC;
+    private String ADD1;
+    private String ADD2;
+    private String ADD3;
+    private String address;
     private String email;
+    private String phoneNo1;
+    private String phoneNo2;
+    private String GenEngMarks;
+    private String intake;
     private String currentHostel;
     private String faculty;
-    private String intake;
+    private String dateOfEnrollment;
+
     private String distance;
-    private String address;
     private String contact;
     private String emergencyContact;
 
@@ -94,4 +111,132 @@ public class Student {
 
     public List<ComplaintRequest> getComplaints() { return complaints; }
     public void setComplaints(List<ComplaintRequest> complaints) { this.complaints = complaints; }
+
+    public String getIndexNo() {
+        return indexNo;
+    }
+
+    public void setIndexNo(String indexNo) {
+        this.indexNo = indexNo;
+    }
+
+    public String getLName() {
+        return LName;
+    }
+
+    public void setLName(String LName) {
+        this.LName = LName;
+    }
+
+    public String getInitials() {
+        return initials;
+    }
+
+    public void setInitials(String initials) {
+        this.initials = initials;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getALDistrict() {
+        return ALDistrict;
+    }
+
+    public void setALDistrict(String ALDistrict) {
+        this.ALDistrict = ALDistrict;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getZScore() {
+        return ZScore;
+    }
+
+    public void setZScore(String ZScore) {
+        this.ZScore = ZScore;
+    }
+
+    public String getMedium() {
+        return medium;
+    }
+
+    public void setMedium(String medium) {
+        this.medium = medium;
+    }
+
+    public String getNIC() {
+        return NIC;
+    }
+
+    public void setNIC(String NIC) {
+        this.NIC = NIC;
+    }
+
+    public String getADD1() {
+        return ADD1;
+    }
+
+    public void setADD1(String ADD1) {
+        this.ADD1 = ADD1;
+    }
+
+    public String getADD2() {
+        return ADD2;
+    }
+
+    public void setADD2(String ADD2) {
+        this.ADD2 = ADD2;
+    }
+
+    public String getADD3() {
+        return ADD3;
+    }
+
+    public void setADD3(String ADD3) {
+        this.ADD3 = ADD3;
+    }
+
+    public String getPhoneNo1() {
+        return phoneNo1;
+    }
+
+    public void setPhoneNo1(String phoneNo1) {
+        this.phoneNo1 = phoneNo1;
+    }
+
+    public String getPhoneNo2() {
+        return phoneNo2;
+    }
+
+    public void setPhoneNo2(String phoneNo2) {
+        this.phoneNo2 = phoneNo2;
+    }
+
+    public String getGenEngMarks() {
+        return GenEngMarks;
+    }
+
+    public void setGenEngMarks(String genEngMarks) {
+        GenEngMarks = genEngMarks;
+    }
+
+    public String getDateOfEnrollment() {
+        return dateOfEnrollment;
+    }
+
+    public void setDateOfEnrollment(String dateOfEnrollment) {
+        this.dateOfEnrollment = dateOfEnrollment;
+    }
 }

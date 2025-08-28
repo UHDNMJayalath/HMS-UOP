@@ -110,7 +110,7 @@
                     <tr th:each="payment : ${payments}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${payment.date}">2024-05-01</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${payment.amount}">5000.00</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${payment.type}">Hall Fees</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${payment.paymentType}">Hall Fees</td>
                     </tr>
                     </tbody>
                 </table>

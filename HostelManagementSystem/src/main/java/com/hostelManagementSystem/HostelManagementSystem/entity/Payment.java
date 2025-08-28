@@ -3,45 +3,53 @@ package com.hostelManagementSystem.HostelManagementSystem.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "payment")
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "registration_number")
+    private String registrationNumber;
+
+    @Column(name = "date")
     private String date;
 
+    @Column(name = "amount")
     private double amount;
 
-    private String type; // paymentType
+    @Column(name = "payment_type")
+    private String paymentType;
 
-    private String fileUrl;
-
+    @Column(name = "semester")
     private String semester;
 
+    @Column(name = "slip_ref_number")
     private String slipRefNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", referencedColumnName = "studentId")
     private Student student;
 
-    // Constructor with all fields except id (id auto-generated)
-    public Payment(String date, double amount, String type, String registrationNumber,
+    public Payment() {}
+
+    public Payment(String registrationNumber, String date, double amount, String paymentType,
                    String semester, String slipRefNumber, Student student) {
+        this.registrationNumber = registrationNumber;
         this.date = date;
         this.amount = amount;
-        this.type = type;
+        this.paymentType = paymentType;
         this.semester = semester;
         this.slipRefNumber = slipRefNumber;
         this.student = student;
     }
 
-    public Payment() {
-    }
-
-    // getters and setters for all fields
-
+    // ---------------- Getters and Setters ----------------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getRegistrationNumber() { return registrationNumber; }
+    public void setRegistrationNumber(String registrationNumber) { this.registrationNumber = registrationNumber; }
 
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
@@ -49,11 +57,8 @@ public class Payment {
     public double getAmount() { return amount; }
     public void setAmount(double amount) { this.amount = amount; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public String getFileUrl() { return fileUrl; }
-    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+    public String getPaymentType() { return paymentType; }
+    public void setPaymentType(String paymentType) { this.paymentType = paymentType; }
 
     public String getSemester() { return semester; }
     public void setSemester(String semester) { this.semester = semester; }

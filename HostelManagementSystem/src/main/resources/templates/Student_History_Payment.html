@@ -128,7 +128,7 @@
                     <tr th:each="pay : ${payments}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${pay.date}">2023-12-05</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${pay.amount}">1500.00</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${pay.type}">Hostel Fee</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${pay.paymentType}">Hostel Fee</td>
                     </tr>
                     </tbody>
                 </table>

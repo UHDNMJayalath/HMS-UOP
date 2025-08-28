@@ -54,7 +54,7 @@ public class ForgotPasswordController {
         session.setAttribute("verificationCode", code);
         session.setAttribute("email", email);
 
-        // ✅ Send email
+        //  Send email
         try {
             emailService.sendCode(email, code);
         } catch (Exception e) {

@@ -39,12 +39,14 @@ public class BursarDashboardController {
         model.addAttribute("bursarEmail", email);
 
         if (studentId != null && !studentId.isEmpty()) {
-            Optional<Student> studentOpt = studentRepository.findById(studentId);
+            Optional<Student> studentOpt = studentRepository.findByStudentId(studentId);
             if (studentOpt.isPresent()) {
                 Student student = studentOpt.get();
                 model.addAttribute("students", List.of(student));
-                List<Payment> payments = paymentRepository.findByStudent(student);
+
+                List<Payment> payments = paymentRepository.findByStudent_StudentId(studentId);
                 model.addAttribute("payments", payments);
+
             } else {
                 model.addAttribute("students", List.of());
                 model.addAttribute("payments", List.of());
@@ -57,6 +59,7 @@ public class BursarDashboardController {
 
         return "bursar-dashboard";
     }
+
 
 
 

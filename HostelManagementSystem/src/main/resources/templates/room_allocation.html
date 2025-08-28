@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HMS-UOP_Assistant_Distance</title>
+    <link rel="icon" href="images/Logo.png" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex h-screen">
+
+<!-- Sidebar -->
+<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full  text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
+
+
+
+    <!-- Top Section: Logo + Buttons -->
+    <div>
+        <!-- Logo -->
+        <div class="p-4 flex items-center border-b border-blue-200 justify-center">
+            <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" />
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-3 px-4 space-y-3">
+
+            <!-- Dashboard -->
+            <a href="SubWardon-dashboard.html"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
+                <span>Students</span>
+            </a>
+
+
+            <!-- Rooms -->
+            <a href="subwarden_rooms.html"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
+                <span>Rooms</span>
+            </a>
+
+            <!-- Room allocation -->
+            <a href="#"
+               class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
+                <span>Room Allocation</span>
+            </a>
+
+            <!-- complaints -->
+            <a href="subwarden_compaints.html"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
+                <span>Complaints</span>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Logout Button at Bottom -->
+    <footer>
+        <div class="text-center mb-6 px-4">
+            <button  method="get" type="submit" class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
+                <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+                <span>Log Out</span>
+            </button>
+        </div>
+    </footer>
+
+
+</div>
+
+<!-- Overlay for mobile -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+<!-- Main Content -->
+<div class="flex-1 overflow-auto">
+    <div class="container mx-auto p-6">
+
+        <!-- Header Box -->
+        <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <!-- Logo + Title Together -->
+                <div class="flex items-center space-x-4">
+                    <button id="toggle-btn" class="lg:hidden text-2xl">&#9776;</button>
+                    <img src="images/UniversityLogo.png" alt="University Logo" class="w-12 h-12 object-contain border-none shadow-none outline-none" />
+                    <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+                </div>
+
+                <!-- User Info -->
+                <div class="text-medium text-gray-600">
+                    <!--                    <span class="font-medium" th:text="${student.email}">User@pdn.ac.lk</span>-->
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Allocation Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6 w-full max-w-4xl mx-auto">
+            <h2 class="text-xl font-bold mb-4">Room Allocation</h2>
+
+            <!-- Select Students -->
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Select Student(s)</label>
+                <select id="studentSelect" multiple size="6"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option th:each="student : ${students}"
+                            th:value="${student.registrationNumber}"
+                            th:text="${student.registrationNumber} + ' - ' + ${student.name}">
+                        S20XXXX - John Doe - Faculty of Science
+                    </option>
+                </select>
+                <p class="text-sm text-gray-500 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple students</p>
+            </div>
+
+            <!-- Select Room -->
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Select Room</label>
+                <select id="roomSelect"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option th:each="room : ${rooms}"
+                            th:value="${room.roomNumber}"
+                            th:text="${room.roomNumber} + ' - Avail: ' + ${room.availableSlots} + '/' + ${room.maxSlots}">
+                        A101 - Avail: 2/4
+                    </option>
+                </select>
+            </div>
+
+            <!-- Assign Type -->
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Assign Type</label>
+                <select id="assignType"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="Proper">Proper</option>
+                    <option value="Medical">Medical</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <!-- Assign Button -->
+            <div class="flex justify-end">
+                <button onclick="assignStudentsToRoom()"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                    Assign to Room
+                </button>
+            </div>
+        </div>
+
+
+</div>
+</div>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const overlay = document.getElementById('overlay');
+
+    toggleBtn.addEventListener('click', () => {
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden', isOpen);
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    });
+
+   function assignStudentsToRoom() {
+    const selectedStudents = Array.from(document.getElementById('studentSelect').selectedOptions).map(opt => opt.value);
+    const selectedRoom = document.getElementById('roomSelect').value;
+    const assignType = document.getElementById('assignType').value;
+
+    if (selectedStudents.length === 0) {
+      alert("Please select at least one student.");
+      return;
+    }
+
+    fetch('/room-allocation/assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        students: selectedStudents,
+        roomNumber: selectedRoom,
+        assignType: assignType
+      })
+    })
+    .then(res => {
+      if (res.ok) {
+        alert("Students assigned successfully");
+        location.reload();
+      } else {
+        alert("Failed to assign students");
+      }
+    });
+  }
+</script>
+
+
+</body>
+</html>

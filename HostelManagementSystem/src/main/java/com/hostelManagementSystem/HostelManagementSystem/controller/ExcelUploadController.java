@@ -1,18 +1,22 @@
 package com.hostelManagementSystem.HostelManagementSystem.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Controller
@@ -61,5 +65,35 @@ public class ExcelUploadController {
 
         // Always return to the same dashboard page
         return "srb-dashboard";
+    }
+
+    @GetMapping("/ExcelFileList")
+    public String listFiles(Model model) throws IOException {
+        Files.createDirectories(Paths.get(UPLOAD_DIR));
+
+        List<String> fileNames = new ArrayList<>();
+        try(DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(UPLOAD_DIR))) {
+            for (Path path: stream){
+                if (!Files.isDirectory(path)){
+                    fileNames.add(path.getFileName().toString());
+                }
+            }
+        }
+        model.addAttribute("files", fileNames);
+        return "assistant_dashboard";
+    }
+
+    @GetMapping("/download/{fileName}")
+    @ResponseBody
+    public ResponseEntity<Resource> downloadExcelFile(@PathVariable String fileName) throws IOException{
+        Path filePath = Paths.get(UPLOAD_DIR).resolve(fileName).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }

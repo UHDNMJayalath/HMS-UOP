@@ -1,7 +1,9 @@
 package com.hostelManagementSystem.HostelManagementSystem.service;
 
+import com.hostelManagementSystem.HostelManagementSystem.entity.Assistant;
 import com.hostelManagementSystem.HostelManagementSystem.entity.Student;
 import com.hostelManagementSystem.HostelManagementSystem.entity.UserRoles;
+import com.hostelManagementSystem.HostelManagementSystem.repository.AssistantRepository;
 import com.hostelManagementSystem.HostelManagementSystem.repository.StudentRepository;
 import com.hostelManagementSystem.HostelManagementSystem.repository.UserRolesRepository;
 import jakarta.transaction.Transactional;
@@ -22,6 +24,9 @@ public class DashboardRoutingService {
 
     @Autowired
     private UserRolesRepository userRolesRepo;
+
+    @Autowired
+    private AssistantRepository assistantRepo;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -52,7 +57,15 @@ public class DashboardRoutingService {
                     return "sub warden-dashboard";
 
                 case "management_assistant":
-                    return "management-dashboard";
+                    Optional<Assistant> assistant = assistantRepo.findByEmailIgnoreCase(email);
+                    if (assistant.isPresent()){
+                        model.addAttribute("assistant",assistant.get());
+                        return "redirect:/ExcelFileList";
+                    }
+                    else {
+                        model.addAttribute("error", "MA details not found.");
+                        return "login";
+                    }
 
                 case "registration_branch":
                     return "srb-dashboard";
@@ -90,7 +103,7 @@ public class DashboardRoutingService {
             case "vc@pdn.ac.lk", "dvc@pdn.ac.lk" -> "vc_dvc";
             case "bursar@pdn.ac.lk" -> "student_services_bursar";
             case "registration@pdn.ac.lk" -> "registration_branch";
-            case "dean@pdn.ac.lk", "dean@dental.pdn.ac.lk" -> "dean";
+            case "dean@sci.pdn.ac.lk", "dean@dental.pdn.ac.lk", "dean@art.pdn.ac.lk", "dean@eng.pdn.ac.lk" -> "dean";
             case "director@pdn.ac.lk" -> "director_accommodation_division";
             case "assistant@pdn.ac.lk" -> "management_assistant";
             case "subwarden@pdn.ac.lk" -> "sub warden";

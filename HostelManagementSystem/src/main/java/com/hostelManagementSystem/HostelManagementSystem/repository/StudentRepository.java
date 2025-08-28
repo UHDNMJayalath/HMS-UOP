@@ -17,6 +17,14 @@ public interface StudentRepository extends JpaRepository<Student, String> {
     List<Student> findByFacultyIgnoreCase(String faculty);
     Optional<Student> findByStudentIdAndFacultyIgnoreCase(String studentId, String faculty);
 
+    long countByFaculty(String faculty);
+
+
+    List<Student> findByFacultyAndCurrentHostelContainingIgnoreCase(String faculty, String hostel);
+
+    List<Student> findByFacultyAndIntakeContainingIgnoreCase(String faculty, String batch);
+
+    List<Student> findByFacultyAndCurrentHostelContainingIgnoreCaseAndIntakeContainingIgnoreCase(String faculty, String hostel, String batch);
 
 
 
