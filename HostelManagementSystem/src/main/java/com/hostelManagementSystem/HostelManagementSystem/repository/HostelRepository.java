@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface HostelRepository extends JpaRepository<Hostel, Long> {
 
+    long count();
+
     // Corrected method names that match entity properties
     List<Hostel> findByFaculty(String faculty);  // Now matches the faculty field
 

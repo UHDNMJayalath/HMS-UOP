@@ -11,6 +11,8 @@ public interface StudentRepository extends JpaRepository<Student, String> {
 
     Optional<Student> findByStudentId(String studentId);
 
+    long count();
+
     List<Student> findByFaculty(String faculty);
     Optional<Student> findByStudentIdAndFaculty(String studentId, String faculty);
 
@@ -27,6 +29,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
     List<Student> findByFacultyAndCurrentHostelContainingIgnoreCaseAndIntakeContainingIgnoreCase(String faculty, String hostel, String batch);
 
 
+    Optional<Student> findByStudentIdIgnoreCase(String studentId);
 
 }
 

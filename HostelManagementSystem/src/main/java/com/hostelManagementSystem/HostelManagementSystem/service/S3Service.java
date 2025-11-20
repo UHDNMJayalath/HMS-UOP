@@ -1,23 +1,28 @@
 package com.hostelManagementSystem.HostelManagementSystem.service;
 
+import jakarta.annotation.PreDestroy;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+// ... (omitted imports) ...
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.UUID;
+
+// ... (omitted imports) ...
 
 @Service
 public class S3Service {
@@ -27,10 +32,14 @@ public class S3Service {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
+    // Bucket Region එක ලබා ගැනීමට නව field එකක්
+    private final String region;
+
     public S3Service(@Value("${aws.region}") String region,
                      @Value("${aws.accessKeyId}") String accessKey,
                      @Value("${aws.secretAccessKey}") String secret) {
 
+        this.region = region; // <<< Region එක save කළා
         AwsBasicCredentials creds = AwsBasicCredentials.create(accessKey, secret);
         Region r = Region.of(region);
         this.s3 = S3Client.builder()
@@ -55,7 +64,15 @@ public class S3Service {
                 .build();
 
         s3.putObject(por, RequestBody.fromBytes(file.getBytes()));
-        return key;
+        return key; // Returns S3 Key (file path)
+    }
+
+    public String getBucketName() { // <<< Getter for Bucket Name
+        return bucket;
+    }
+
+    public String getRegion() { // <<< Getter for Region
+        return region;
     }
 
     public URL generatePresignedUrl(String key, Duration validFor) {

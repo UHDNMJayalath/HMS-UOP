@@ -27,20 +27,25 @@ public class Payment {
     @Column(name = "slip_ref_number")
     private String slipRefNumber;
 
+    @Column(name = "slip_url") // <<< නව Field එක
+    private String slipUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", referencedColumnName = "studentId")
     private Student student;
 
+    // ---------------- Constructors ----------------
     public Payment() {}
 
     public Payment(String registrationNumber, String date, double amount, String paymentType,
-                   String semester, String slipRefNumber, Student student) {
+                   String semester, String slipRefNumber, String slipUrl, Student student) { // <<< Constructor Update
         this.registrationNumber = registrationNumber;
         this.date = date;
         this.amount = amount;
         this.paymentType = paymentType;
         this.semester = semester;
         this.slipRefNumber = slipRefNumber;
+        this.slipUrl = slipUrl; // <<< New field initialization
         this.student = student;
     }
 
@@ -65,6 +70,9 @@ public class Payment {
 
     public String getSlipRefNumber() { return slipRefNumber; }
     public void setSlipRefNumber(String slipRefNumber) { this.slipRefNumber = slipRefNumber; }
+
+    public String getSlipUrl() { return slipUrl; } // <<< New Getter
+    public void setSlipUrl(String slipUrl) { this.slipUrl = slipUrl; } // <<< New Setter
 
     public Student getStudent() { return student; }
     public void setStudent(Student student) { this.student = student; }
