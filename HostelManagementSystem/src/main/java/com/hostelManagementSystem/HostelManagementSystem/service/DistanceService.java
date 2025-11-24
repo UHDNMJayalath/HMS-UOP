@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DistanceService {
 
 
-    private final String API_KEY = "AIzaSyANyfgGOtQ-tBGu8AIWDmmshuzDc228bKM";
+    private final String API_KEY = "AIzaSyANyfgGOtQ-tBGu8AIWDmmshuzDc228bK2M";
 
     public String calculateDistance(String studentAddress) {
         String universityAddress = "University of Peradeniya, Sri Lanka";
