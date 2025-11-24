@@ -1,27 +1,34 @@
 package com.hostelManagementSystem.HostelManagementSystem.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class SubWarden {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String email;
     private String password;
-    private String hostel;
+    private Integer hostelId;
 
     public SubWarden() {
 
     }
 
-    public SubWarden(Long id, String name, String email, String password, String hostel) {
+    public SubWarden(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
+
+    public SubWarden(Long id, String name, String email, String password, String hostelId) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
-        this.hostel = hostel;
     }
 
     public Long getId() {
@@ -56,11 +63,11 @@ public class SubWarden {
         this.password = password;
     }
 
-    public String getHostel() {
-        return hostel;
+    public Integer getHostelId() {
+        return hostelId;
     }
 
-    public void setHostel(String hostel) {
-        this.hostel = hostel;
+    public void setHostelId(Integer hostelId) {
+        this.hostelId = hostelId;
     }
 }

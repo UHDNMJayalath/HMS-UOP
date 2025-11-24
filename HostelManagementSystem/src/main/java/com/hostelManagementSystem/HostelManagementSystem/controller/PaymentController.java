@@ -29,7 +29,7 @@ public class PaymentController {
     @Autowired
     private StudentRepository studentRepository;
 
-    @Autowired // <<< Autowire S3Service
+    @Autowired
     private S3Service s3Service;
 
     // ---------------- Submit Payment ----------------
@@ -40,11 +40,10 @@ public class PaymentController {
                                 @RequestParam String paymentType,
                                 @RequestParam Double amount,
                                 @RequestParam String slipRefNumber,
-                                @RequestParam("pdfImageFile") MultipartFile pdfImageFile, // <<< FILE PARAMETER එක එකතු කළා
+                                @RequestParam("pdfImageFile") MultipartFile pdfImageFile,
                                 RedirectAttributes redirectAttributes) {
         String email = (String) session.getAttribute("loggedInUserEmail");
         if (email == null) return "redirect:/login";
-
 
         try {
 
@@ -52,17 +51,34 @@ public class PaymentController {
                 throw new IllegalArgumentException("Payment slip file is missing or empty.");
             }
 
+            // --- FILE NAME GENERATION LOGIC ---
 
-            String s3Key = s3Service.uploadFile(pdfImageFile, "payment-slips");
+            // 1. Sanitize Registration Number (Remove '/' and replace with '-')
+            // Ex: "S/16/200" becomes "S-16-200"
+            String sanitizedRegNo = registrationNumber.replaceAll("[/\\\\]", "-");
 
+            // 2. Sanitize Payment Type (Remove spaces)
+            // Ex: "Hostel Fee" becomes "HostelFee"
+            String sanitizedPaymentType = paymentType.replaceAll("\\s+", "");
+
+            // 3. Add Timestamp (To prevent overwriting if they upload again)
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+
+            // 4. Create the final Custom Name
+            // Result: S-16-200_HostelFee_20251124-123045
+            String customFileName = sanitizedRegNo + "_" + sanitizedPaymentType + "_" + timestamp;
+
+            // 5. Call the NEW upload method in S3Service
+            String s3Key = s3Service.uploadFileWithCustomName(pdfImageFile, "payment-slips", customFileName);
+
+            // ----------------------------------
 
             String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
                     s3Service.getBucketName(),
                     s3Service.getRegion(),
                     s3Key);
 
-
-            // 2. Find Student and Save to DB
+            // Find Student and Save to DB
             Student student = studentRepository.findByEmailIgnoreCase(email)
                     .orElseThrow(() -> new RuntimeException("Student not found."));
 
@@ -88,11 +104,9 @@ public class PaymentController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error uploading slip. Please check file size/format.");
             return "redirect:/Student_Payments";
         } catch (Exception e) {
-            // Includes RuntimeException from student find or JPA errors
             log.error("Error processing payment/DB save for registration: {}", registrationNumber, e);
             redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while processing your payment or saving data.");
             return "redirect:/Student_Payments";
         }
     }
-
 }

@@ -28,6 +28,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
 
     List<Student> findByFacultyAndCurrentHostelContainingIgnoreCaseAndIntakeContainingIgnoreCase(String faculty, String hostel, String batch);
 
+    List<Student> findByBatchId(Integer batchId);
 
     Optional<Student> findByStudentIdIgnoreCase(String studentId);
 

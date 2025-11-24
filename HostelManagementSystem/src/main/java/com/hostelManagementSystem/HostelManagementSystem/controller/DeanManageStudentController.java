@@ -48,7 +48,7 @@ public class DeanManageStudentController {
         }
 
         model.addAttribute("students", students);
-        model.addAttribute("faculty", faculty); // <-- Ensure this is added for Thymeleaf
+        model.addAttribute("faculty", faculty);
 
         return "dean_manage-students";
     }

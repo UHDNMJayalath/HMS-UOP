@@ -31,10 +31,12 @@ public class Student {
     private String currentHostel;
     private String faculty;
     private String dateOfEnrollment;
+    private Integer batchId;
 
     private String distance;
     private String contact;
     private String emergencyContact;
+    private Integer academicYear;
 
     //  Relations with other entities
 
@@ -239,4 +241,30 @@ public class Student {
     public void setDateOfEnrollment(String dateOfEnrollment) {
         this.dateOfEnrollment = dateOfEnrollment;
     }
+
+    public Integer getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(Integer batchId) {
+        this.batchId = batchId;
+    }
+
+    public Integer getAcademicYear() {
+        return academicYear;
+    }
+
+    public void setAcademicYear(Integer academicYear) {
+        this.academicYear = academicYear;
+    }
+
+    public boolean isEmpty(){
+        if (this.studentId != null){
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
 }

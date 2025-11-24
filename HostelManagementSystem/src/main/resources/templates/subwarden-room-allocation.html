@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sub Warden - Student Allocation</title>
+  <link rel="icon" href="images/Logo.png" type="image/x-icon" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex h-screen">
+<!--<script src="/subWarden.js"></script>-->
+
+<!-- Sidebar -->
+<div id="sidebar"
+     class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
+
+  <!-- Top Section -->
+  <div>
+    <div class="p-4 flex items-center border-b border-blue-200 justify-center">
+      <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain" />
+    </div>
+
+    <div class="mt-3 px-4 space-y-3">
+      <a href="/SubWarden_Dash_Board"
+         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Dashboard.svg" class="w-5 h-5" /> <span>Dashboard</span>
+      </a>
+
+      <a href="/Rooms"
+         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Room.png" class="w-5 h-5" /> <span>Rooms</span>
+      </a>
+
+      <a href="/room-allocation"
+         class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2">
+        <img src="images/students.png" class="w-5 h-5" /> <span>Allocation</span>
+      </a>
+
+      <a href="subwarden_compaints.html"
+         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Complain.svg" class="w-5 h-5" /> <span>Complaints</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Logout Button -->
+  <footer>
+    <div class="text-center mb-6 px-4">
+      <a href="/logout"
+         class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2 transition shadow-sm">
+        <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+        <span>Log Out</span>
+      </a>
+    </div>
+  </footer>
+</div>
+
+<!-- Overlay -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+<!-- Main Content -->
+<div class="flex-1 overflow-auto">
+  <div class="container mx-auto p-6">
+
+    <!-- Header -->
+    <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <button id="toggle-btn" class="lg:hidden text-2xl">&#9776;</button>
+          <img src="images/UniversityLogo.png" class="w-12 h-12 object-contain" />
+          <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+        </div>
+        <div class="text-medium text-gray-600">
+          <!-- <span th:text="${user.email}">User@pdn.ac.lk</span> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Allocation Section -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-bold mb-6">Student Allocation</h2>
+
+      <!-- Error Message -->
+      <div id="errorMessage" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <span id="errorText"></span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Total Free Rooms -->
+        <div class="flex flex-col">
+          <h3 class="bg-blue-200 text-center font-bold py-2 rounded mb-3">Total Free Rooms</h3>
+
+          <!-- Search Bar -->
+          <input
+                  type="text"
+                  id="freeRoomSearch"
+                  placeholder="Search room..."
+                  class="w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:outline-none focus:border-blue-500"
+          >
+
+          <!-- Rooms List -->
+          <ul id="totalFreeRoomsList" class="flex-1 space-y-2 max-h-72 overflow-y-auto border p-2 rounded bg-gray-50">
+            <li th:each="room : ${totalFreeRooms}" class="room-item cursor-pointer border-b py-2 px-2 rounded hover:bg-blue-100 transition" th:data-room-id="${room.roomNo}" th:data-room-no="${room.roomNo}" th:data-free-space="${room.capacity}">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold" th:text="${room.roomNo}">Room A-101</span>
+                <span class="text-sm text-gray-600 bg-green-200 px-2 py-1 rounded" th:text="'Free: ' + ${room.capacity}">Free: 2</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Partially Free Rooms -->
+        <div class="flex flex-col">
+          <h3 class="bg-blue-200 text-center font-bold py-2 rounded mb-3">Partially Free Rooms</h3>
+
+          <!-- Search Bar -->
+          <input
+                  type="text"
+                  id="partialRoomSearch"
+                  placeholder="Search room..."
+                  class="w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:outline-none focus:border-blue-500"
+          >
+
+          <!-- Rooms List -->
+          <ul id="partiallyFreeRoomsList" class="flex-1 space-y-2 max-h-72 overflow-y-auto border p-2 rounded bg-gray-50">
+            <li th:each="room : ${partiallyFreeRooms}" class="room-item cursor-pointer border-b py-2 px-2 rounded hover:bg-blue-100 transition" th:data-room-id="${room.roomNo}" th:data-room-no="${room.roomNo}" th:data-free-space="${room.capacity}">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold" th:text="${room.roomNo}">Room A-101</span>
+                <span class="text-sm text-gray-600 bg-green-200 px-2 py-1 rounded" th:text="'Free: ' + (${room.capacity} - ${room.currentAllocations})">Free: 2</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Allocate Student -->
+        <div class="flex flex-col">
+          <h3 class="bg-blue-200 text-center font-bold py-2 rounded mb-3">Allocate Student</h3>
+
+          <!-- Selected Room Display -->
+          <div id="selectedRoomDisplay" class="hidden mb-3 p-3 bg-blue-50 border border-blue-300 rounded">
+            <p class="text-sm font-semibold text-gray-700">Selected Room:</p>
+            <p id="selectedRoomText" class="text-lg font-bold text-blue-600"></p>
+            <p id="roomCapacityText" class="text-sm text-gray-600 mt-1"></p>
+          </div>
+
+          <!-- Selected Students Display -->
+          <div id="selectedStudentsContainer" class="hidden mb-3 p-3 bg-green-50 border border-green-300 rounded">
+            <p class="text-sm font-semibold text-gray-700 mb-2">Selected Students:</p>
+            <div id="selectedStudentsList" class="space-y-1 max-h-20 overflow-y-auto">
+              <!-- Selected students will appear here -->
+            </div>
+          </div>
+
+          <!-- Search Bar for Students -->
+          <input
+                  type="text"
+                  id="studentSearch"
+                  placeholder="Search student..."
+                  class="w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:outline-none focus:border-blue-500"
+          >
+
+          <!-- Students List -->
+          <ul id="studentList" class="flex-1 space-y-2 max-h-72 overflow-y-auto border p-2 rounded bg-gray-50">
+            <li th:each="student : ${students}" class="student-item border-b py-2 px-2 rounded hover:bg-green-100 transition" th:data-student-id="${student.studentId}" th:data-student-no="${student.studentId}">
+              <div class="flex items-center">
+                <input type="checkbox" class="student-checkbox mr-2" th:data-student-id="${student.studentId}" th:data-student-no="${student.studentId}">
+                <span th:text="${student.studentId} + ' - ' + ${student.LName} + ' ' + ${student.initials}">REG-001 - John Doe</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Allocate Button -->
+      <div class="mt-6 flex justify-center">
+        <button
+                id="allocateBtn"
+                class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled
+        >
+          Allocate Room for Selected Students
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // State management
+  const state = {
+      selectedRoom: null,
+      selectedStudents: new Set(),
+      maxCapacity: 0
+  };
+
+  // Get all room items
+  const freeRoomItems = document.querySelectorAll('#totalFreeRoomsList .room-item');
+  const partialRoomItems = document.querySelectorAll('#partiallyFreeRoomsList .room-item');
+  const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+
+  // Search functionality
+  const freeRoomSearch = document.getElementById('freeRoomSearch');
+  const partialRoomSearch = document.getElementById('partialRoomSearch');
+  const studentSearch = document.getElementById('studentSearch');
+
+  // Filter free rooms
+  freeRoomSearch.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      freeRoomItems.forEach(item => {
+          const roomNo = item.dataset.roomNo.toLowerCase();
+          item.style.display = roomNo.includes(query) ? '' : 'none';
+      });
+  });
+
+  // Filter partial rooms
+  partialRoomSearch.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      partialRoomItems.forEach(item => {
+          const roomNo = item.dataset.roomNo.toLowerCase();
+          item.style.display = roomNo.includes(query) ? '' : 'none';
+      });
+  });
+
+  // Filter students
+  studentSearch.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('#studentList .student-item').forEach(item => {
+          const text = item.textContent.toLowerCase();
+          item.style.display = text.includes(query) ? '' : 'none';
+      });
+  });
+
+  // Room selection handler
+  function handleRoomSelection(roomElement) {
+      // Deselect all rooms
+      [...freeRoomItems, ...partialRoomItems].forEach(item => {
+          item.classList.remove('bg-blue-300', 'border-blue-500');
+          item.classList.add('hover:bg-blue-100');
+      });
+
+      // Select clicked room
+      roomElement.classList.add('bg-blue-300', 'border-blue-500');
+      roomElement.classList.remove('hover:bg-blue-100');
+
+      // Update state
+      state.selectedRoom = {
+          id: roomElement.dataset.roomId,
+          no: roomElement.dataset.roomNo,
+          freeSpace: parseInt(roomElement.dataset.freeSpace)
+      };
+      state.maxCapacity = state.selectedRoom.freeSpace;
+
+      // Clear previously selected students
+      state.selectedStudents.clear();
+      studentCheckboxes.forEach(cb => cb.checked = false);
+
+      // Update display
+      updateSelectedRoomDisplay();
+      updateSelectedStudentsDisplay();
+      hideError();
+      updateAllocateButton();
+  }
+
+  // Add room selection listeners
+  [...freeRoomItems, ...partialRoomItems].forEach(roomItem => {
+      roomItem.addEventListener('click', () => handleRoomSelection(roomItem));
+  });
+
+  // Student checkbox handler
+  studentCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+          if (!state.selectedRoom) {
+              showError('Please select a room first!');
+              e.target.checked = false;
+              return;
+          }
+
+          if (e.target.checked) {
+              if (state.selectedStudents.size >= state.maxCapacity) {
+                  showError(`You can only select ${state.maxCapacity} student(s) for this room.`);
+                  e.target.checked = false;
+                  return;
+              }
+              state.selectedStudents.add({
+                  id: e.target.dataset.studentId,
+                  no: e.target.dataset.studentNo
+              });
+          } else {
+              const student = Array.from(state.selectedStudents).find(
+                  s => s.id === e.target.dataset.studentId
+              );
+              if (student) {
+                  state.selectedStudents.delete(student);
+              }
+          }
+
+          hideError();
+          updateSelectedStudentsDisplay();
+          updateAllocateButton();
+      });
+  });
+
+  // Update selected room display
+  function updateSelectedRoomDisplay() {
+      const display = document.getElementById('selectedRoomDisplay');
+      if (state.selectedRoom) {
+          document.getElementById('selectedRoomText').textContent =
+              `${state.selectedRoom.no} (${state.selectedRoom.freeSpace} spaces)`;
+          document.getElementById('roomCapacityText').textContent =
+              `Available capacity: ${state.maxCapacity} student(s)`;
+          display.classList.remove('hidden');
+      } else {
+          display.classList.add('hidden');
+      }
+  }
+
+  // Update selected students display
+  function updateSelectedStudentsDisplay() {
+      const container = document.getElementById('selectedStudentsContainer');
+      const list = document.getElementById('selectedStudentsList');
+
+      if (state.selectedStudents.size > 0) {
+          list.innerHTML = '';
+          state.selectedStudents.forEach(student => {
+              const div = document.createElement('div');
+              div.className = 'text-sm bg-white p-2 rounded border-l-4 border-green-500';
+              div.textContent = `${student.no}`;
+              list.appendChild(div);
+          });
+          container.classList.remove('hidden');
+      } else {
+          container.classList.add('hidden');
+      }
+  }
+
+  // Show error message
+  function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      document.getElementById('errorText').textContent = message;
+      errorDiv.classList.remove('hidden');
+  }
+
+  // Hide error message
+  function hideError() {
+      document.getElementById('errorMessage').classList.add('hidden');
+  }
+
+  // Update allocate button state
+  function updateAllocateButton() {
+      const btn = document.getElementById('allocateBtn');
+      btn.disabled = !state.selectedRoom || state.selectedStudents.size === 0;
+  }
+
+  // Allocate button handler
+  document.getElementById('allocateBtn').addEventListener('click', () => {
+      if (!state.selectedRoom || state.selectedStudents.size === 0) {
+          showError('Please select a room and at least one student!');
+          return;
+      }
+
+      const studentIds = Array.from(state.selectedStudents).map(s => s.id);
+
+      alert(`Allocating students to Room ${state.selectedRoom.no}:\n${
+          Array.from(state.selectedStudents).map(s => s.no).join('\n')
+      }`);
+
+      // Send allocation request (adjust based on your backend)
+     fetch('/api/room_allocate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+        roomNo: state.selectedRoom.no,
+        studentIds: studentIds
+    })
+})
+.then(() => window.location.reload());
+
+
+      // Reset state after allocation
+      state.selectedRoom = null;
+      state.selectedStudents.clear();
+      studentCheckboxes.forEach(cb => cb.checked = false);
+      document.querySelectorAll('.room-item').forEach(item => {
+          item.classList.remove('bg-blue-300', 'border-blue-500');
+          item.classList.add('hover:bg-blue-100');
+      });
+
+      updateSelectedRoomDisplay();
+      updateSelectedStudentsDisplay();
+      updateAllocateButton();
+  });
+</script>
+
+
+</body>
+</html>

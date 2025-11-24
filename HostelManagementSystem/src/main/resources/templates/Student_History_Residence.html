@@ -3,156 +3,168 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>HMS-UOP_Student_History_Residence</title>
+    <title>HMS-UOP | Residence History</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="images/Logo.png" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
 <body class="bg-gray-100 flex h-screen">
 
-<!-- Sidebar -->
-<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full  text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
-    <!-- Top Section: Logo + Buttons -->
+<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 shadow-lg lg:shadow-none">
     <div>
-        <!-- Logo -->
         <div class="p-4 flex items-center border-b border-blue-200 justify-center">
             <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" />
         </div>
 
-        <!-- Buttons -->
         <div class="mt-3 px-4 space-y-3">
 
-            <!-- Dashboard -->
             <a href="/student-dashboard"
                class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
-                <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
+                <i class="fas fa-th-large w-5 text-center text-black"></i>
                 <span>Dashboard</span>
             </a>
 
-            <!-- History -->
             <a href="/Student_History_Residence"
-               class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
-                <img src="images/history.svg" alt="History Icon" class="w-5 h-5" />
+               class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200 shadow-md">
+                <i class="fas fa-history w-5 text-center text-white"></i>
                 <span>History</span>
             </a>
 
-            <!-- Complains -->
             <a href="/Student_ComplainsAndRequests"
                class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
-                <img src="images/Complain.svg" alt="Complains Icon" class="w-5 h-5" />
+                <i class="fas fa-headset w-5 text-center text-black"></i>
                 <span>Service Desk</span>
             </a>
 
-            <!-- Payments -->
             <a href="/Student_Payments"
                class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
-                <img src="images/Payments.png" alt="Complains Icon" class="w-5 h-5" />
+                <i class="fas fa-credit-card w-5 text-center text-black"></i>
                 <span>Payments</span>
             </a>
 
         </div>
-
     </div>
 
-    <!-- Logout Button at Bottom -->
     <footer>
         <div class="text-center mb-6 px-4">
             <a href="/logout"
-               class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
+               class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2 transition shadow-sm">
                 <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
                 <span>Log Out</span>
             </a>
         </div>
     </footer>
-
 </div>
-
-<!-- Overlay for mobile -->
 
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
 
-<!-- Main Content -->
 <div class="flex-1 overflow-auto">
     <div class="container mx-auto p-6">
 
-        <!-- Header Box -->
-        <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+        <div class="bg-blue-200 rounded-lg shadow p-6 mb-8">
             <div class="flex justify-between items-center">
-                <!-- Logo + Title Together -->
                 <div class="flex items-center space-x-4">
-                    <button id="toggle-btn" class="lg:hidden text-2xl">&#9776;</button>
+                    <button id="toggle-btn" class="lg:hidden text-2xl text-blue-800 focus:outline-none">&#9776;</button>
                     <img src="images/UniversityLogo.png" alt="University Logo"
                          class="w-12 h-12 object-contain border-none shadow-none outline-none">
-                    <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
-                </div>
-
-                <!-- User Info -->
-                <div class="text-sm text-gray-600">
-                    <!-- <span class="font-medium">User@pdn.ac.lk</span> -->
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+                        <p class="text-sm text-blue-800 font-medium hidden sm:block">Residence History</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Payment History Section -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden min-h-[500px]">
 
+            <div class="p-6 md:p-8">
 
-            <!-- Three Horizontal Buttons (Redirect) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-gray-100 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">History Records</h2>
+                        <p class="text-gray-500 text-sm mt-1">View your past hostel allocations.</p>
+                    </div>
 
-                <a href="/Student_History_Residence"
-                   class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 font-bold text-center rounded transition block">
-                    Residence
-                </a>
+                    <div class="flex space-x-2 mt-4 md:mt-0 bg-gray-100 p-1.5 rounded-xl">
+                        <a href="/Student_History_Residence"
+                           class="px-6 py-2 bg-white text-blue-600 shadow-sm rounded-lg font-semibold text-sm transition-all duration-200 flex items-center">
+                            <i class="fas fa-bed mr-2"></i> Residence
+                        </a>
+                        <a href="/Student_History_Payment"
+                           class="px-6 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg font-medium text-sm transition-all duration-200 flex items-center">
+                            <i class="fas fa-file-invoice-dollar mr-2"></i> Payment
+                        </a>
+                        <a href="/Student_History_Damage"
+                           class="px-6 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg font-medium text-sm transition-all duration-200 flex items-center">
+                            <i class="fas fa-hammer mr-2"></i> Damage
+                        </a>
+                    </div>
+                </div>
 
-                <a href="/Student_History_Payment"
-                   class="w-full bg-blue-200 hover:bg-blue-300 text-black py-2 font-bold text-center rounded transition block">
-                    Payment
-                </a>
+                <div class="overflow-x-auto rounded-xl border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-blue-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Academic Year</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hostel Name</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Allocation Date</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Left Date</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:if="${residences != null}" th:each="res : ${residences}" class="hover:bg-blue-50/50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-xs" th:text="${res.academicYear}">2023/2024</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium" th:text="${res.hostel}">Jayathilaka Hall</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <i class="far fa-calendar-alt mr-2 text-gray-400"></i>
+                                <span th:text="${res.allocationDate}">2023-12-01</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <i class="far fa-calendar-times mr-2 text-gray-400"></i>
+                                <span th:text="${res.leftDate ?: 'Ongoing'}">Ongoing</span>
+                            </td>
+                        </tr>
 
-                <a href="/Student_History_Damage"
-                   class="w-full bg-blue-200 hover:bg-blue-300 text-black py-2 font-bold text-center rounded transition block">
-                    Damage
-                </a>
+                        <tr th:if="${residences == null or residences.isEmpty()}">
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="bg-gray-100 p-4 rounded-full mb-3">
+                                        <i class="fas fa-history text-3xl text-gray-400"></i>
+                                    </div>
+                                    <p class="text-lg font-medium text-gray-600">No Residence History Found</p>
+                                    <p class="text-sm text-gray-400">You haven't been allocated to any hostels yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
+        </div>
 
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Academic Year</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Hostel</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Allocation Date</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Left Date</th>
-                    </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" th:if="${residences != null}">
-                    <tr th:each="res : ${residences}">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${res.academicYear}">2023/2024</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${res.hostel}">Jayathilaka Hall</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${res.allocationDate}">2023-12-01</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800" th:text="${res.leftDate}">N/A</td>
-                    </tr>
-                    </tbody>
-                </table>
+        <div class="mt-auto pt-8 pb-4">
+            <div class="border-t border-gray-300 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                <p>&copy; 2025 HMS - University of Peradeniya. All rights reserved.</p>
             </div>
-
         </div>
 
     </div>
 </div>
 
 <script>
-
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggle-btn');
     const overlay = document.getElementById('overlay');
 
     toggleBtn.addEventListener('click', () => {
-
         const isOpen = !sidebar.classList.contains('-translate-x-full');
-
         sidebar.classList.toggle('-translate-x-full');
         overlay.classList.toggle('hidden', isOpen);
     });
@@ -161,7 +173,6 @@
         sidebar.classList.add('-translate-x-full');
         overlay.classList.add('hidden');
     });
-
 </script>
 </body>
 </html>

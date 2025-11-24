@@ -2,11 +2,10 @@ package com.hostelManagementSystem.HostelManagementSystem.controller;
 
 import com.hostelManagementSystem.HostelManagementSystem.entity.Director_AllocationHistory;
 import com.hostelManagementSystem.HostelManagementSystem.service.Director_AllocationHistoryService;
-import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 import java.util.List;
 

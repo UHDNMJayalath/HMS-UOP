@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sub Warden Dashboard ID</title>
+    <link rel="icon" href="images/Logo.png" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100 flex h-screen">
+
+
+<!-- Sidebar -->
+<div id="sidebar"
+     class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
+
+    <!-- Top Section -->
+    <div>
+        <!-- Logo -->
+        <div class="p-4 flex items-center border-b border-blue-200 justify-center">
+            <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain" />
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-3 px-4 space-y-3">
+            <a href="/SubWarden_Dash_Board"
+               class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2">
+                <img src="images/Dashboard.svg" class="w-5 h-5" /> <span>Dashboard</span>
+            </a>
+
+
+            <a href="/Rooms"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+                <img src="images/Room.png" class="w-5 h-5" /> <span>Rooms</span>
+            </a>
+
+            <a href="/room-allocation" onclick="sendRequest(event)"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+                <img src="images/students.png" class="w-5 h-5" /> <span>Allocation</span>
+            </a>
+
+            <a href="/subwarden_compaints"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+                <img src="images/Complain.svg" class="w-5 h-5" />
+                <span>Complaints</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Logout Button -->
+    <footer>
+        <div class="text-center mb-6 px-4">
+            <a href="/logout"
+               class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2 transition shadow-sm">
+                <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+                <span>Log Out</span>
+            </a>
+        </div>
+    </footer>
+</div>
+
+<!-- Overlay -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+<!-- Main Content -->
+<div class="flex-1 overflow-auto">
+    <div class="container mx-auto p-6">
+
+        <!-- Header -->
+        <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <button id="toggle-btn" class="lg:hidden text-2xl">&#9776;</button>
+                    <img src="images/UniversityLogo.png" class="w-12 h-12 object-contain" />
+                    <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+                </div>
+                <div class="text-medium text-gray-600">
+                    <!-- <span th:text="${user.email}">User@pdn.ac.lk</span> -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Hostel & Sub Warden Info -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg p-6 mb-6 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold mb-2" th:text="${hostel.name}"></h2>
+                    <p class="text-blue-100 text-lg">Sub Warden: <span class="font-semibold" th:text="${subwarden.name}">Dr. John Smith</span></p>
+                </div>
+                <div class="text-right">
+                    <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2 backdrop-blur-sm">
+                        <p class="text-sm text-blue-100">Dashboard Overview</p>
+                        <p class="text-lg font-semibold" th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy')}">02 Sep 2025</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Search Student -->
+        <form th:action="@{/subWarden/searchStudent}" method="post" class="flex justify-center mb-6">
+            <div class="flex space-x-2">
+                <input name="studentId"
+                       id="searchInput"
+                       type="text"
+                       placeholder="Enter Student Registration Number"
+                       class="px-4 py-2 w-72 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                <input name="hostelId"
+                       type="hidden"
+                       th:value="${hostel.id}">
+
+                <button type="submit"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                    Search
+                </button>
+            </div>
+        </form>
+
+
+
+        <!-- Student Data -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6" th:if="${student != null}">
+            <h1 class="text-2xl font-bold mb-4">Student Data</h1>
+            <div class="space-y-3">
+                <div class="flex"><h3 class="w-40 font-semibold">Name</h3><span class="w-8">:</span><p th:text="${student.name}">########</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Student ID</h3><span class="w-8">:</span><p th:text="${student.studentId}">S20###</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Room No</h3><span class="w-8">:</span><p th:text="${student.roomNo}">R###</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Contact</h3><span class="w-8">:</span><p th:text="${student.contact}">########</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Faculty</h3><span class="w-8">:</span><p th:text="${student.faculty}">Science</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Academic Year</h3><span class="w-8">:</span><p th:text="${student.academicYear}">2nd Year</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Distance</h3><span class="w-8">:</span><p th:text="${student.distance}">15 km</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Address</h3><span class="w-8">:</span><p th:text="${student.address}">Kandy</p></div>
+            </div>
+
+            <!-- Damage History -->
+            <div class="mt-6" th:if="${student != null}">
+                <h2 class="text-lg font-semibold mb-2">History of Damage</h2>
+
+                <ul class="list-disc pl-6 text-gray-700">
+                    <li th:each="d : ${damages}">
+                        <span class="font-medium" th:text="${d.hostel}">Broken chair</span>
+                        <span class="font-medium" th:text="${d.fine}">Broken chair</span>
+                        <span class="font-medium" th:text="${d.paymentStatus}">Broken chair</span>
+
+                    </li>
+                </ul>
+
+                <p th:if="${#lists.isEmpty(damages)}" class="text-gray-500">No damage history</p>
+            </div>
+
+
+
+
+            <!-- Add New Damage -->
+                <form th:action="@{/addDamage}" method="post" class="mt-4">
+                    <input type="hidden" name="studentId" th:value="${student.studentId}">
+                    <textarea name="description" placeholder="Enter new damage..."
+                              class="w-full px-3 py-2 border rounded-lg"></textarea>
+                    <button type="submit"
+                            class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 3. ADD NEW ROOM BUTTON AND FORM (below the dashboard stats) -->
+        <!-- Add New Room Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6" x-data="{ showForm: false }">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Room Management</h2>
+                <button @click="showForm = !showForm"
+                        class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 flex items-center space-x-2 transition-colors duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span>Add New Room</span>
+                </button>
+            </div>
+
+            <!-- Add Room Form (Initially Hidden) -->
+            <div x-show="showForm" x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform scale-100"
+                 x-transition:leave-end="opacity-0 transform scale-95"
+                 class="border-t pt-6 mt-6">
+
+                <form th:action="@{/addRoom}" method="post" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Room Number -->
+                        <div>
+                            <label for="roomNo" class="block text-sm font-medium text-gray-700 mb-2">Room Number</label>
+                            <input type="text" id="roomNo" name="roomNo" required
+                                   placeholder="e.g., R001"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   th:value="${roomNo}">
+                        </div>
+
+                        <!-- Floor -->
+                        <div>
+                            <label for="floor" class="block text-sm font-medium text-gray-700 mb-2">Floor</label>
+                            <input type="number" id="floor" name="floor" required min="1"
+                                   placeholder="1"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   th:value="${floor}">
+                        </div>
+
+<!--                        &lt;!&ndash; Room Type &ndash;&gt;-->
+<!--                        <div x-data="{ open: false, selected: 'Select Type', selectedValue: '' }">-->
+<!--                            <label class="block text-sm font-medium text-gray-700 mb-2">Room Type</label>-->
+<!--                            <div class="relative">-->
+<!--                                <button type="button" @click="open = !open"-->
+<!--                                        class="w-full px-3 py-2 text-left border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">-->
+<!--                                    <span x-text="selected" class="block truncate"></span>-->
+<!--                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2">-->
+<!--                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>-->
+<!--                                </svg>-->
+<!--                            </span>-->
+<!--                                </button>-->
+<!--                                <ul x-show="open" @click.outside="open = false"-->
+<!--                                    class="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg">-->
+<!--                                    <li @click="selected = 'Available'; selectedValue = 'Available'; open = false"-->
+<!--                                        class="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">Available</li>-->
+<!--                                    <li @click="selected = 'Repair'; selectedValue = 'Repair'; open = false"-->
+<!--                                        class="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">Repair</li>-->
+<!--                                </ul>-->
+<!--                                <input type="hidden" name="type" th:value="selectedValue" required>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+                        <!-- Capacity -->
+                        <div>
+                            <label for="capacity" class="block text-sm font-medium text-gray-700 mb-2">Capacity</label>
+                            <input type="number" id="capacity" name="capacity" required min="1" max="10"
+                                   placeholder="2"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   th:value="${capacity}">
+                        </div>
+
+                        <input type="hidden" name="hostelId" th:value="${hostel.id}" />
+                        <input type="hidden" name="subWardenId" th:value="${subwarden.id}" />
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" @click="showForm = false"
+                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                            Add Room
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Total Rooms -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Total Rooms</p>
+                        <p class="text-3xl font-bold text-gray-900" th:text="${hostel.totalRooms}"></p>
+                    </div>
+                    <div class="p-3 bg-blue-100 rounded-full">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Residential Students -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Residential Students</p>
+                        <p class="text-3xl font-bold text-gray-900" th:text="${hostel.ResidentialStudents}">142</p>
+                    </div>
+                    <div class="p-3 bg-green-100 rounded-full">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repairing Rooms -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Repairing Rooms</p>
+                        <p class="text-3xl font-bold text-gray-900" th:text="${hostel.repairRooms}">8</p>
+                    </div>
+                    <div class="p-3 bg-orange-100 rounded-full">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Rooms -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Available Rooms</p>
+                        <p class="text-3xl font-bold text-gray-900" th:text="${hostel.availableRooms}"></p>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-full">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const overlay = document.getElementById('overlay');
+
+    toggleBtn?.addEventListener('click', () => {
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden', isOpen);
+    });
+    overlay?.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    });
+
+    function searchStudent() {
+        const type = document.getElementById('searchType').value;
+        const value = document.getElementById('searchInput').value.trim();
+        if (!value) { alert("Please enter a value"); return; }
+
+        if (type === "Registration Number") {
+            window.location.href = `/subwarden_dashboard?regNo=${encodeURIComponent(value)}`;
+        } else {
+            window.location.href = `/subwarden_dashboard?roomNo=${encodeURIComponent(value)}`;
+        }
+    }
+</script>
+
+</body>
+</html>

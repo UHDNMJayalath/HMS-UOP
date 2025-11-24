@@ -15,15 +15,19 @@ public class Director_AllocationHistoryService {
     }
 
     public List<Director_AllocationHistory> getFilteredAllocations(String faculty, String intake, String academicYear, String gender) {
-        // Handle null values for filtering
-        if (faculty == null) faculty = "";
-        if (intake == null) intake = "";
-        if (academicYear == null) academicYear = "";
-        if (gender == null) gender = "";
 
-        return repository.findByFacultyContainingAndIntakeContainingAndAcademicYearContainingAndGenderContaining(
-                faculty, intake, academicYear, gender
-        );
+
+        if (faculty != null && faculty.trim().isEmpty()) faculty = null;
+        if (intake != null && intake.trim().isEmpty()) intake = null;
+        if (academicYear != null && academicYear.trim().isEmpty()) academicYear = null;
+
+
+        if (gender != null && (gender.trim().isEmpty() || gender.equalsIgnoreCase("Both"))) {
+            gender = null;
+        }
+
+
+        return repository.findWithFilters(faculty, intake, academicYear, gender);
     }
 
     public List<String> getAllFaculties() {

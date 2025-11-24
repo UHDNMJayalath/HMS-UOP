@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox | Director Accommodation Division</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" th:href="@{/images/Logo.png}" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        /* Modal Animation */
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden">
+
+<div id="sidebar" class="w-64 bg-blue-100 shadow-lg p-6 flex flex-col justify-between rounded-r-lg transition-transform transform lg:translate-x-0 -translate-x-full fixed lg:static z-20 h-full">
+    <div>
+        <div class="p-4 flex items-center border-b border-blue-200 justify-center">
+            <img th:src="@{/images/logo.png}" alt="Hostel Logo" class="w-20 h-20 object-contain" >
+        </div>
+
+        <nav class="space-y-4 mt-4">
+            <a th:href="@{/Director-AccomodationDivision-dashboard}"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <i class="fas fa-home mr-3"></i> Dashboard
+            </a>
+            <a th:href="@{/Director-Allocation_History}"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <i class="fas fa-history mr-3"></i> Allocation History
+            </a>
+            <a th:href="@{/Director-User_management}"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <i class="fas fa-users mr-3"></i> User Management
+            </a>
+            <a th:href="@{/Director-StudentDetails}"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <i class="fas fa-graduation-cap mr-3"></i> Student Details
+            </a>
+
+            <a th:href="@{/director/inbox}"
+               class="w-full py-2 bg-blue-500 text-white shadow-md rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200 relative">
+                <i class="fas fa-inbox mr-3"></i> Inbox
+                <span id="sidebar-badge" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}"
+                      class="absolute top-1 right-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                </span>
+            </a>
+        </nav>
+    </div>
+    <footer>
+        <div class="text-center mb-6 px-4">
+            <a href="/logout"
+               class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
+                <img th:src="@{/images/LogOut.png}" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+                <span>Log Out</span>
+            </a>
+        </div>
+    </footer>
+</div>
+
+<div id="overlay" class="fixed inset-0 bg-black opacity-50 z-10 hidden lg:hidden"></div>
+
+<div class="flex-1 p-4 md:p-8 overflow-y-auto h-full">
+
+    <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <button id="toggle-btn" class="lg:hidden text-2xl focus:outline-none text-gray-700 hover:text-blue-600 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <img th:src="@{/images/UniversityLogo.png}" alt="University Logo" class="w-10 h-10 md:w-12 md:h-12 object-contain" />
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+                    <p class="text-xs md:text-sm text-blue-800 font-medium hidden sm:block">Director Accommodation Division</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-inbox mr-3 text-blue-500"></i> Inbox & Notifications
+        </h2>
+
+        <div th:if="${messages != null and !messages.isEmpty()}" class="space-y-3">
+            <div th:each="msg : ${messages}"
+                 th:id="'msg-row-' + ${msg.id}"
+                 th:classappend="${!msg.isRead} ? 'bg-blue-50 border-blue-500 font-semibold' : 'bg-white border-gray-200'"
+                 class="border-l-4 p-4 rounded-lg shadow hover:shadow-md transition cursor-pointer flex justify-between items-center group"
+
+                 th:data-id="${msg.id}"
+                 th:data-subject="${msg.subject}"
+                 th:data-content="${msg.content}"
+                 th:data-sender="${msg.sender}"
+                 th:data-date="${msg.date}"
+                 th:data-unread="${!msg.isRead}"
+                 th:data-type="${msg.senderType}"
+                 onclick="openMessageModal(this)">
+
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center mb-1">
+                        <div class="flex items-center space-x-2">
+                            <span th:if="${msg.senderType == 'DEAN'}"
+                                  class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide border border-blue-200">
+                                DEAN
+                            </span>
+                            <span th:if="${msg.senderType == 'STUDENT'}"
+                                  class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide border border-green-200">
+                                STUDENT
+                            </span>
+
+                            <h3 class="text-md truncate text-gray-800" th:text="${msg.subject}">Subject</h3>
+                        </div>
+
+                        <span class="text-xs text-gray-500 whitespace-nowrap ml-2" th:text="${msg.date}">Date</span>
+                    </div>
+
+                    <p class="text-sm text-gray-600 truncate">
+                        <span class="font-semibold mr-1 text-gray-700" th:text="${msg.sender}">Sender Info</span>
+                        <span class="text-gray-400">-</span>
+                        <span th:text="${msg.content}">Preview...</span>
+                    </p>
+                </div>
+
+                <div class="ml-4">
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${messages == null or messages.isEmpty()}" class="flex flex-col items-center justify-center py-12 bg-white rounded-lg shadow-md">
+            <i class="fas fa-bell-slash text-5xl text-gray-300 mb-3"></i>
+            <p class="text-center text-gray-500 text-lg">No notifications received yet.</p>
+        </div>
+    </main>
+</div>
+
+<div id="messageModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+    <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="closeModal()"></div>
+
+    <div class="modal-container bg-white w-11/12 md:max-w-lg mx-auto rounded shadow-lg z-50 overflow-y-auto animate-fade-in-down">
+
+        <div class="modal-content py-4 text-left px-6">
+            <div class="flex justify-between items-center pb-3 border-b">
+                <p class="text-xl font-bold text-gray-800" id="modal-subject">Subject</p>
+                <div class="modal-close cursor-pointer z-50" onclick="closeModal()">
+                    <i class="fas fa-times text-gray-500 hover:text-red-500"></i>
+                </div>
+            </div>
+
+            <div class="my-3 text-sm text-gray-600 flex justify-between items-center bg-gray-50 p-2 rounded">
+                <span id="modal-sender" class="font-semibold text-blue-700">Sender Info</span>
+                <span id="modal-date" class="text-gray-500">Date</span>
+            </div>
+
+            <div class="my-5 text-gray-700 text-sm whitespace-pre-wrap leading-relaxed min-h-[100px]" id="modal-body">
+                Message content goes here...
+            </div>
+
+            <div class="flex justify-end pt-2 space-x-3 border-t mt-4">
+                <form id="deleteForm" method="post" style="display: none;">
+                    <button type="submit" class="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition text-sm font-semibold flex items-center">
+                        <i class="fas fa-trash-alt mr-2"></i> Delete
+                    </button>
+                </form>
+                <button onclick="closeModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm font-semibold">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const overlay = document.getElementById('overlay');
+    const modal = document.getElementById('messageModal');
+    const body = document.querySelector('body');
+    const badge = document.getElementById('sidebar-badge');
+
+    // Sidebar Logic
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    });
+
+    // ----------------------------------------------------
+    // UPDATED JS LOGIC (Using data-attributes)
+    // ----------------------------------------------------
+    function openMessageModal(element) {
+        // Retrieve data from data attributes
+        const id = element.getAttribute('data-id');
+        const subject = element.getAttribute('data-subject');
+        const bodyContent = element.getAttribute('data-content');
+        const sender = element.getAttribute('data-sender');
+        const date = element.getAttribute('data-date');
+        const isUnread = element.getAttribute('data-unread') === 'true'; // Convert string to boolean
+        const senderType = element.getAttribute('data-type');
+
+        // 1. Set Modal Content
+        document.getElementById('modal-subject').innerText = subject;
+        document.getElementById('modal-body').innerText = bodyContent;
+        document.getElementById('modal-sender').innerText = sender;
+        document.getElementById('modal-date').innerText = date;
+
+        // 2. Handle Delete Button
+        const deleteForm = document.getElementById('deleteForm');
+        deleteForm.style.display = 'block';
+
+        let deleteUrl = '';
+        let readUrl = '';
+
+        if (senderType === 'DEAN') {
+            deleteUrl = '/director/message/delete/' + id;
+            readUrl = '/director/message/read/' + id;
+        } else {
+            deleteUrl = '/director/complaint/delete/' + id;
+            readUrl = '/director/complaint/read/' + id;
+        }
+
+        deleteForm.action = deleteUrl;
+
+        // 3. Show Modal
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        body.classList.add('modal-active');
+
+        // 4. Mark as Read (AJAX)
+        if (isUnread) {
+            console.log("Marking as read: " + readUrl); // Debugging log
+            fetch(readUrl, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        // UI Update: Remove Bold Styling
+                        const row = document.getElementById('msg-row-' + id);
+                        if (row) {
+                            row.classList.remove('bg-blue-50', 'border-blue-500', 'font-semibold');
+                            row.classList.add('bg-white', 'border-gray-200');
+                            // Update the data-unread attribute so it doesn't trigger again
+                            row.setAttribute('data-unread', 'false');
+                        }
+                        // UI Update: Decrease Badge
+                        if (badge) {
+                            let count = parseInt(badge.innerText);
+                            if (count > 1) {
+                                badge.innerText = count - 1;
+                            } else {
+                                badge.remove();
+                            }
+                        }
+                    } else {
+                        console.error("Failed to mark as read");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    function closeModal() {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        body.classList.remove('modal-active');
+    }
+</script>
+
+</body>
+</html>

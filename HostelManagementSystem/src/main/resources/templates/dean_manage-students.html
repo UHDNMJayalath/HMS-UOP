@@ -7,152 +7,217 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="images/Logo.png" type="image/x-icon" />
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
 <body class="bg-gray-100 flex h-screen">
 
-<!-- Sidebar -->
-<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full  text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
-    <!-- Top Section: Logo + Buttons -->
+<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 shadow-lg lg:shadow-none">
     <div>
         <div class="p-4 flex items-center border-b border-blue-200 justify-center">
             <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" >
         </div>
 
-        <!-- Buttons -->
-        <div class="text-center mb-6 px-4">
-            <!-- Dashboard -->
+        <div class="mt-3 px-4 space-y-3">
             <a href="/dean-dashboard"
-               class="w-full py-2 bg-blue-300 text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
-                <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <i class="fas fa-th-large w-5 text-center"></i>
                 <span>Dashboard</span>
             </a>
+
+            <a href="/dean-students"
+               class="w-full py-2 bg-blue-300 text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-start px-4 space-x-2 transition duration-200 shadow-md">
+                <i class="fas fa-user-graduate w-5 text-center"></i>
+                <span>Students</span>
+            </a>
         </div>
-
-
     </div>
 
+    <footer>
+        <div class="text-center mb-6 px-4">
+            <a href="/logout"
+               class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2 transition shadow-sm">
+                <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+                <span>Log Out</span>
+            </a>
+        </div>
+    </footer>
 </div>
 
-<!-- Overlay for mobile -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
 
-<!-- Main Content -->
-<div class="flex-1 overflow-auto">
-    <div class="container mx-auto p-6">
+<div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="container mx-auto flex flex-col min-h-full">
 
-        <!-- Header Box -->
-        <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <button id="toggle-btn" class="lg:hidden text-2xl">&#9776;</button>
-                    <img src="images/UniversityLogo.png" alt="University Logo" class="w-12 h-12 object-contain border-none shadow-none outline-none" />
-                    <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+            <div class="bg-blue-200 rounded-lg shadow p-6 mb-8">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <button id="toggle-btn" class="lg:hidden text-2xl text-blue-800 focus:outline-none">&#9776;</button>
+                        <img src="images/UniversityLogo.png" alt="University Logo" class="w-12 h-12 object-contain border-none shadow-none outline-none" />
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+                            <p class="text-sm text-blue-800 font-medium hidden sm:block">Student Management</p>
+                        </div>
+                    </div>
                 </div>
-
             </div>
-        </div>
 
-        <!-- Filters -->
-        <div class="container mx-auto mt-6 p-6 bg-white shadow rounded-lg">
-            <form th:action="@{/dean-students}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div class="bg-white shadow-md rounded-2xl p-6 mb-8 border border-gray-100 relative z-30">
+                <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-filter mr-2 text-blue-500"></i> Filter Students
+                </h2>
 
-                <!-- Hostel Filter -->
-                <div x-data="{ open: false, query: '', options: [
-            'Akbar Nell Hall','Arunachalam Hall','Jayathilaka Hall','Ivor Jennings Hall','James Peiris Hall',
-            'Marcus Fernando Hall','Marrs Hall','New Akbar Hall','Mahailuppallama Boys Hostel',
-            'Sangaramaya & Kehelpannala Bikku Hostel','Lalith Athulathmudali Hall','AQ 40 Hall',
-            'Senaka Bibile Hall','Hindagala Hall','Ramanathan Hall','Wijewardene Hall','Sangamitta Hall',
-            'Hilda Obeysekara Hall','Sarasavi Uyana Hall','Sarasavi Medura Hall',
-            'Ediriweera Sarachchandra & Gunapala Malalasekara Hall','Mahakanda Hall','Mahailluppallama Girls Hostel'
-        ] }" class="relative">
-                    <label for="hostel" class="block text-sm font-medium text-gray-700 mb-1">Hostel</label>
-                    <input id="hostel" name="hostel" type="text"
-                           x-model="query"
-                           @focus="open = true"
-                           @click.away="open = false"
-                           class="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Search hostel...">
+                <form th:action="@{/dean-students}" method="get" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
 
-                    <!-- Dropdown -->
-                    <ul x-show="open && query.length > 0"
-                        class="absolute z-10 w-full bg-white border border-gray-200 mt-1 rounded-lg shadow max-h-40 overflow-y-auto">
-                        <template x-for="opt in options.filter(o => o.toLowerCase().includes(query.toLowerCase()))" :key="opt">
-                            <li @click="query = opt; open = false"
-                                class="px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 cursor-pointer"
-                                x-text="opt"></li>
-                        </template>
-                        <li x-show="options.filter(o => o.toLowerCase().includes(query.toLowerCase())).length === 0"
-                            class="px-3 py-2 text-sm text-gray-500">No results</li>
-                    </ul>
-                </div>
+                    <div x-data="{ open: false, query: '', options: [
+                        'Hostel A', 'Hostel B', 'Hostel C', 'Hostel D', 'Hostel E',
+                        'Hostel F', 'Hostel G', 'Hostel H', 'Hostel I', 'Hostel X',
+                        'Akbar Nell Hall','Arunachalam Hall','Jayathilaka Hall'
+                    ] }" class="relative md:col-span-5">
+                        <label for="hostel" class="block text-sm font-semibold text-gray-600 mb-1">Hostel</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                <i class="fas fa-building"></i>
+                            </span>
+                            <input id="hostel" name="hostel" type="text"
+                                   x-model="query"
+                                   @focus="open = true"
+                                   @click.away="open = false"
+                                   class="block w-full border border-gray-300 rounded-xl pl-10 pr-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-700"
+                                   placeholder="Search hostel name..." autocomplete="off">
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer" @click="open = !open">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </span>
+                        </div>
 
-                <!-- Batch Filter -->
-                <div x-data="{ open: false, query: '', options: ['2022 Batch','2021 Batch','2020 Batch','2019 Batch'] }" class="relative">
-                    <label for="batch" class="block text-sm font-medium text-gray-700 mb-1">Batch</label>
-                    <input id="batch" name="batch" type="text"
-                           x-model="query"
-                           @focus="open = true"
-                           @click.away="open = false"
-                           class="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Search batch...">
+                        <ul x-show="open && query.length > 0"
+                            x-transition
+                            class="absolute z-50 w-full bg-white border border-gray-200 mt-1 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                            <template x-for="opt in options.filter(o => o.toLowerCase().includes(query.toLowerCase()))" :key="opt">
+                                <li @click="query = opt; open = false"
+                                    class="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-colors border-b border-gray-50 last:border-0"
+                                    x-text="opt"></li>
+                            </template>
+                            <li x-show="options.filter(o => o.toLowerCase().includes(query.toLowerCase())).length === 0"
+                                class="px-4 py-3 text-sm text-gray-500 text-center">No hostels found</li>
+                        </ul>
+                    </div>
 
-                    <!-- Dropdown -->
-                    <ul x-show="open && query.length > 0"
-                        class="absolute z-10 w-full bg-white border border-gray-200 mt-1 rounded-lg shadow max-h-40 overflow-y-auto">
-                        <template x-for="opt in options.filter(o => o.toLowerCase().includes(query.toLowerCase()))" :key="opt">
-                            <li @click="query = opt; open = false"
-                                class="px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 cursor-pointer"
-                                x-text="opt"></li>
-                        </template>
-                        <li x-show="options.filter(o => o.toLowerCase().includes(query.toLowerCase())).length === 0"
-                            class="px-3 py-2 text-sm text-gray-500">No results</li>
-                    </ul>
-                </div>
+                    <div x-data="{ open: false, query: '', options: ['2019/2020', '2020/2021','2021/2022','2022/2023'] }" class="relative md:col-span-4">
+                        <label for="batch" class="block text-sm font-semibold text-gray-600 mb-1">Batch</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                <i class="fas fa-calendar-alt"></i>
+                            </span>
+                            <input id="batch" name="batch" type="text"
+                                   x-model="query"
+                                   @focus="open = true"
+                                   @click.away="open = false"
+                                   class="block w-full border border-gray-300 rounded-xl pl-10 pr-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-700"
+                                   placeholder="Select batch..." autocomplete="off">
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer" @click="open = !open">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </span>
+                        </div>
 
-                <!-- Empty col for spacing -->
-                <div class="hidden md:block"></div>
+                        <ul x-show="open"
+                            x-transition
+                            class="absolute z-50 w-full bg-white border border-gray-200 mt-1 rounded-xl shadow-xl max-h-40 overflow-y-auto">
+                            <template x-for="opt in options.filter(o => o.toLowerCase().includes(query.toLowerCase()))" :key="opt">
+                                <li @click="query = opt; open = false"
+                                    class="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-colors border-b border-gray-50 last:border-0"
+                                    x-text="opt"></li>
+                            </template>
+                        </ul>
+                    </div>
 
-                <!-- Submit Button -->
-                <div class="flex justify-end">
-                    <button type="submit"
-                            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                        Apply Filters
-                    </button>
-                </div>
-            </form>
-        </div>
-
-
-        <!-- Students Table -->
-        <div class="container mx-auto mt-6 p-6 bg-white shadow rounded-lg">
-            <h2 class="text-lg font-semibold mb-4">Student List</h2>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full border border-gray-200 divide-y divide-gray-200">
-                    <thead class="bg-blue-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">ID</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Name</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Batch</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Hostel</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Email</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Contact</th>
-                    </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                    <tr th:each="s : ${students}" class="hover:bg-gray-50">
-                        <td class="px-4 py-2 text-sm font-mono" th:text="${s.studentId}">S20390</td>
-                        <td class="px-4 py-2 text-sm" th:text="${s.name}">John Doe</td>
-                        <td class="px-4 py-2 text-sm" th:text="${s.intake}">2020</td>
-                        <td class="px-4 py-2 text-sm" th:text="${s.currentHostel}">Akbar</td>
-                        <td class="px-4 py-2 text-sm" th:text="${s.email}">john@pdn.ac.lk</td>
-                        <td class="px-4 py-2 text-sm" th:text="${s.contact}">0712345678</td>
-                    </tr>
-                    </tbody>
-                </table>
+                    <div class="md:col-span-3">
+                        <button type="submit"
+                                class="w-full bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-search"></i>
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
             </div>
-        </div>
 
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 flex-grow mb-8 relative z-10">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-list-ul mr-2 text-blue-500"></i> Student List
+                    </h2>
+                    <span class="text-xs font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm" th:if="${students != null}">
+                        Total Records: <span class="text-blue-600 ml-1" th:text="${students.size()}">0</span>
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-blue-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Batch</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hostel</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Contact</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="s : ${students}" class="hover:bg-blue-50/50 transition duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-600 font-bold" th:text="${s.studentId}">S20390</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${s.name}">John Doe</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200" th:text="${s.intake}">
+                                    2020
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200" th:text="${s.currentHostel}">
+                                    Akbar
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <div class="flex items-center">
+                                    <i class="far fa-envelope mr-2 text-gray-400"></i>
+                                    <span th:text="${s.email}">john@pdn.ac.lk</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone-alt mr-2 text-gray-400 text-xs"></i>
+                                    <span th:text="${s.contact}">0712345678</span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr th:if="${students == null or students.isEmpty()}">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="bg-gray-100 p-4 rounded-full mb-3">
+                                        <i class="fas fa-user-slash text-3xl text-gray-400"></i>
+                                    </div>
+                                    <p class="text-lg font-medium text-gray-600">No Students Found</p>
+                                    <p class="text-sm text-gray-400">Try adjusting your filters to see results.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-auto border-t border-gray-200 py-6">
+                <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                    <p>&copy; 2025 HMS - University of Peradeniya. All rights reserved.</p>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 

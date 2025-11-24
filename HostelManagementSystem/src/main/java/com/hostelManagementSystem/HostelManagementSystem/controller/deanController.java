@@ -1,13 +1,18 @@
 package com.hostelManagementSystem.HostelManagementSystem.controller;
 
 import com.hostelManagementSystem.HostelManagementSystem.entity.Student;
+import com.hostelManagementSystem.HostelManagementSystem.model.MessageForm;
 import com.hostelManagementSystem.HostelManagementSystem.repository.StudentRepository;
+import com.hostelManagementSystem.HostelManagementSystem.service.MessagingService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +22,9 @@ public class deanController {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private MessagingService messagingService;
 
     @GetMapping("/dean-dashboard")
     public String deanDashboard(@RequestParam(value = "q", required = false) String studentId,
@@ -94,5 +102,59 @@ public class deanController {
         }
 
         return "General"; // default fallback
+    }
+
+    // ---------------------------------------------------------------------
+    // Messaging Methods
+    // ---------------------------------------------------------------------
+
+    @GetMapping("/dean/message/new")
+    public String showMessageForm(Model model, HttpSession session) {
+        model.addAttribute("messageForm", new MessageForm());
+        model.addAttribute("faculty", session.getAttribute("deanFaculty"));
+        model.addAttribute("deanEmail", session.getAttribute("loggedInUserEmail"));
+        return "dean-message-form";
+    }
+
+    @PostMapping("/dean/message/send")
+    public String sendMessage(@ModelAttribute("messageForm") MessageForm messageForm,
+                              RedirectAttributes redirectAttributes,
+                              HttpSession session) {
+
+        // Retrieve actual Dean Faculty and ID from session
+        String deanFaculty = (String) session.getAttribute("deanFaculty");
+        Long deanId = (Long) session.getAttribute("loggedInUserId");
+
+        // Fallback/Validation for Faculty
+        if (deanFaculty == null) {
+            deanFaculty = getDeanFaculty(session);
+            session.setAttribute("deanFaculty", deanFaculty);
+        }
+
+        // Fallback for ID (Temporary measure if not set during login)
+        if (deanId == null) {
+            deanId = 1L;
+        }
+
+        try {
+            // Check if faculty is invalid
+            if (deanFaculty == null || deanFaculty.trim().isEmpty() || "General".equalsIgnoreCase(deanFaculty)) {
+                throw new IllegalArgumentException("Cannot send message. Faculty information is missing or general.");
+            }
+
+            messagingService.saveMessage(deanId, deanFaculty, messageForm.getSubject(), messageForm.getBody());
+
+            // Add success message to RedirectAttributes
+            redirectAttributes.addFlashAttribute("successMessage", "✅ Notification successfully submitted to the Director of Accommodation.");
+
+        } catch (IllegalArgumentException e) {
+            // Add error message to RedirectAttributes
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/dean/message/new"; // Redirect back to form on error
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "❌ An unexpected error occurred while submitting the notification.");
+        }
+        // Redirect to dashboard to display the flash success message
+        return "redirect:/dean-dashboard";
     }
 }

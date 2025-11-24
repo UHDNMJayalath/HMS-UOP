@@ -5,67 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Allocation History</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="images/Logo.png" type="image/x-icon" />
+
+    <link rel="icon" th:href="@{/images/Logo.png}" type="image/x-icon" />
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Custom font */
         body { font-family: 'Inter', sans-serif; }
 
-        /* Custom styles for sidebar animation */
-        .sidebar {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(-100%); /* Default hidden state for mobile */
-        }
-        .sidebar-visible {
-            transform: translateX(0); /* Visible state */
-        }
-        /* Backdrop for mobile overlay */
-        .sidebar-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 40;
-        }
-        .sidebar-backdrop.active {
-            display: block;
-        }
+        /* Sidebar Transitions */
+        .sidebar { transition: transform 0.3s ease-in-out; }
 
-        /* Media query to override mobile styles for large screens and up (lg: 1024px) */
-        @media (min-width: 1024px) {
-            .sidebar {
-                position: relative !important;
-                transform: translateX(0) !important; /* Always visible on lg+ */
-                height: 100vh;
-                z-index: 10;
-            }
-            .sidebar-backdrop {
-                display: none !important;
-            }
-        }
-        /* Mobile specific fixed position */
-        @media (max-width: 1023px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 100vh;
-                z-index: 50;
-            }
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex min-h-screen">
+<body class="bg-gray-100 flex h-screen overflow-hidden">
 
-<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
-<div id="sidebar" class="w-64 bg-blue-100 shadow-lg p-6 flex flex-col justify-between rounded-r-lg sidebar lg:relative">
+<div id="sidebar" class="w-64 bg-blue-100 shadow-lg p-6 flex flex-col justify-between rounded-r-lg transition-transform transform lg:translate-x-0 -translate-x-full fixed lg:static z-20 h-full">
     <div>
         <div>
             <div class="p-4 flex items-center border-b border-blue-200 justify-center">
-                <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" >
+                <img th:src="@{/images/logo.png}" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" >
             </div>
         </div>
-        <nav class="space-y-4">
+        <nav class="space-y-4 mt-4">
             <a href="/Director-AccomodationDivision-dashboard"
                class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
                 <i class="fas fa-home mr-3"></i> Dashboard
@@ -79,166 +48,237 @@
                class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
                 <i class="fas fa-users mr-3"></i> User Management
             </a>
+
+            <a href="/Director-StudentDetails"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
+                <i class="fas fa-graduation-cap mr-3"></i> Student Details
+            </a>
+
+            <a th:href="@{/director/inbox}"
+               th:classappend="${tab == 'inbox'} ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-black'"
+               class="w-full py-2 rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200 relative">
+                <i class="fas fa-inbox mr-3"></i> Inbox
+
+                <span id="sidebar-badge" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}"
+                      class="absolute top-1 right-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                </span>
+            </a>
+
         </nav>
     </div>
     <footer>
         <div class="text-center mb-6 px-4">
             <a href="/logout"
                class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
-                <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+                <img th:src="@{/images/LogOut.png}" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
                 <span>Log Out</span>
             </a>
         </div>
     </footer>
 </div>
 
-<div class="flex-1 p-4 lg:p-8 overflow-y-auto">
+<div id="overlay" class="fixed inset-0 bg-black opacity-50 z-10 hidden lg:hidden"></div>
 
-    <div class="bg-blue-200 rounded-lg shadow p-4 lg:p-6 mb-6">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+<div class="flex-1 p-4 md:p-8 overflow-y-auto h-full">
+
+    <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+        <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <button id="toggle-btn" class="lg:hidden text-2xl text-gray-800">&#9776;</button>
-                <img src="images/UniversityLogo.png" alt="University Logo" class="w-12 h-12 object-contain border-none shadow-none outline-none" />
-                <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
-            </div>
-
-            <div class="text-medium text-gray-600">
+                <button id="toggle-btn" class="lg:hidden text-2xl focus:outline-none text-gray-700 hover:text-blue-600 transition">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <img th:src="@{/images/UniversityLogo.png}" alt="University Logo" class="w-10 h-10 md:w-12 md:h-12 object-contain border-none shadow-none outline-none" />
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+                    <p class="text-xs md:text-sm text-blue-800 font-medium hidden sm:block">Director Accommodation Division</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <main>
-        <div class="bg-white p-4 lg:p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Allocation History</h2>
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Filter Allocations</h2>
 
-            <form action="/Director-Allocation_History" method="GET" class="flex flex-col sm:flex-row items-center gap-4 mb-6">
-                <select name="faculty" class="w-full sm:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="" disabled selected>Faculty</option>
-                    <option>Agriculture</option>
-                    <option>Arts</option>
-                    <option>Engineering</option>
-                    <option>Science</option>
-                    <option>Medicine</option>
-                    <option>AHS</option>
-                    <option>Management</option>
+        <form action="/Director-Allocation_History" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Faculty</label>
+                <select name="faculty" class="custom-select block w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 shadow-sm transition duration-150 ease-in-out">
+                    <option value="">All Faculties</option>
+                    <option th:each="f : ${faculties}"
+                            th:value="${f}"
+                            th:text="${f}"
+                            th:selected="${param.faculty != null and param.faculty[0] == f}">
+                    </option>
                 </select>
-
-                <select name="intake" class="w-full sm:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="" disabled selected>Intake</option>
-                    <option>2022</option>
-                    <option>2023</option>
-                    <option>2024</option>
-                </select>
-
-                <select name="academicYear" class="w-full sm:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="" disabled selected>Academic year</option>
-                    <option>First Year</option>
-                    <option>Second Year</option>
-                    <option>Third Year</option>
-                    <option>Forth Year</option>
-                </select>
-
-                <select name="gender" class="w-full sm:w-auto p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">M/F/Both</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Both">Both</option>
-                </select>
-
-                <button type="submit" class="w-full sm:w-auto p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-                    Filter
-                </button>
-            </form>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <thead>
-                    <tr class="bg-gray-100">
-                        <th class="py-3 px-3 border-b text-left text-gray-600 font-semibold">Faculty</th>
-                        <th class="py-3 px-3 border-b text-left text-gray-600 font-semibold">Intake</th>
-                        <th class="py-3 px-3 border-b text-left text-gray-600 font-semibold">Academic year</th>
-                        <th class="py-3 px-3 border-b text-left text-gray-600 font-semibold">M/F/Total</th>
-                        <th class="py-3 px-3 border-b text-left text-gray-600 font-semibold">Students</th>
-                        <th class="py-3 px-3 border-b text-left text-gray-600 font-semibold">Hostel</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:if="${allocations != null and !allocations.isEmpty()}" th:each="allocation : ${allocations}" class="hover:bg-gray-50">
-                        <td class="py-3 px-3 border-b text-gray-800" th:text="${allocation.faculty ?: 'N/A'}"></td>
-                        <td class="py-3 px-3 border-b text-gray-800" th:text="${allocation.intake ?: 'N/A'}"></td>
-                        <td class="py-3 px-3 border-b text-gray-800" th:text="${allocation.academicYear ?: 'N/A'}"></td>
-                        <td class="py-3 px-3 border-b text-gray-800" th:text="${allocation.gender ?: 'N/A'}"></td>
-                        <td class="py-3 px-3 border-b text-gray-800" th:text="${allocation.studentCount ?: 0}"></td>
-                        <td class="py-3 px-3 border-b text-gray-800" th:text="${allocation.hostelName ?: 'N/A'}"></td>
-                    </tr>
-                    <tr th:if="${allocations == null or allocations.isEmpty()}">
-                        <td colspan="6" class="py-4 text-center text-gray-500">No allocation history found.</td>
-                    </tr>
-                    </tbody>
-                </table>
             </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Intake</label>
+                <select name="intake" class="custom-select block w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 shadow-sm transition duration-150 ease-in-out">
+                    <option value="">All Intakes</option>
+                    <option th:each="i : ${intakes}"
+                            th:value="${i}"
+                            th:text="${i}"
+                            th:selected="${param.intake != null and param.intake[0] == i}">
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+                <select name="academicYear" class="custom-select block w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 shadow-sm transition duration-150 ease-in-out">
+                    <option value="">All Years</option>
+                    <option th:each="ay : ${academicYears}"
+                            th:value="${ay}"
+                            th:text="${ay}"
+                            th:selected="${param.academicYear != null and param.academicYear[0] == ay}">
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select name="gender" class="custom-select block w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 shadow-sm transition duration-150 ease-in-out">
+                    <option value="">All</option>
+                    <option value="Male" th:selected="${param.gender != null and param.gender[0] == 'Male'}">Male</option>
+                    <option value="Female" th:selected="${param.gender != null and param.gender[0] == 'Female'}">Female</option>
+                    <option value="Both" th:selected="${param.gender != null and param.gender[0] == 'Both'}">Both</option>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit"
+                        class="w-full bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition flex items-center justify-center space-x-2">
+                    <i class="fas fa-filter"></i>
+                    <span>Apply Filters</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Allocation History List</h2>
         </div>
-    </main>
-</div>
 
-<script>
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggle-btn');
-    const backdrop = document.getElementById('sidebarBackdrop');
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-blue-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Faculty</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Intake</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Academic Year</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Gender</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Students</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Hostel</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:if="${allocations != null and !allocations.isEmpty()}" th:each="allocation : ${allocations}" class="hover:bg-blue-50 transition duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${allocation.faculty ?: 'N/A'}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${allocation.intake ?: 'N/A'}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${allocation.academicYear ?: 'N/A'}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                  th:classappend="${allocation.gender == 'Male' ? 'bg-green-100 text-green-800' : (allocation.gender == 'Female' ? 'bg-pink-100 text-pink-800' : 'bg-gray-100 text-gray-800')}"
+                                  th:text="${allocation.gender ?: 'N/A'}">
+                            </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${allocation.studentCount ?: 0}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${allocation.hostelName ?: 'N/A'}"></td>
+                </tr>
 
-    const LG_BREAKPOINT = 1024; // Tailwind's lg breakpoint
+                <tr th:if="${allocations == null or allocations.isEmpty()}">
+                    <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                        <div class="flex flex-col items-center justify-center">
+                            <i class="fas fa-inbox text-4xl mb-2 text-gray-300"></i>
+                            <p>No allocation history found for the selected filters.</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
 
-    // Function to open the sidebar
-    function openSidebar() {
-        if (window.innerWidth < LG_BREAKPOINT) {
-            sidebar.classList.add('sidebar-visible');
-            sidebar.classList.remove('sidebar-hidden');
-            backdrop.classList.add('active');
-        }
-    }
+        </div>
 
-    // Function to close the sidebar
-    function closeSidebar() {
-        if (window.innerWidth < LG_BREAKPOINT) {
-            sidebar.classList.remove('sidebar-visible');
-            sidebar.classList.add('sidebar-hidden');
-            backdrop.classList.remove('active');
-        }
-    }
+    </div>
 
-    // Event listeners
-    toggleBtn.addEventListener('click', openSidebar);
-    backdrop.addEventListener('click', closeSidebar); // Close when clicking the backdrop
+    <div class="mt-8 border-t border-gray-200 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+            <p>&copy; 2025 HMS - University of Peradeniya. All rights reserved.</p>
+        </div>
+    </div>
 
-    // Optional: Close sidebar on link click (for better mobile experience)
-    document.querySelectorAll('#sidebar a').forEach(link => {
-        link.addEventListener('click', () => {
-            if (window.innerWidth < LG_BREAKPOINT) {
-                closeSidebar();
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggle-btn');
+        const overlay = document.getElementById('overlay');
+
+        toggleBtn.addEventListener('click', () => {
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            if(isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
             }
         });
-    });
 
-    // Handle window resize: If resized to LG+ screen, ensure sidebar is visible
-    window.addEventListener('resize', function() {
-        if (window.innerWidth >= LG_BREAKPOINT) {
-            // Ensure classes are removed for desktop view
-            sidebar.classList.remove('sidebar-visible');
-            sidebar.classList.remove('sidebar-hidden');
-            backdrop.classList.remove('active');
-        } else {
-            // On resize back to mobile, re-hide it if it was open
-            closeSidebar();
-        }
-    });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
 
-    // Initialize sidebar state on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.innerWidth < LG_BREAKPOINT) {
-            // For mobile, ensure the sidebar is initially hidden
-            sidebar.classList.add('sidebar-hidden');
+        document.addEventListener("DOMContentLoaded", function() {
+            updateSidebarBadge();
+        });
+
+        function updateSidebarBadge() {
+            // අපි කලින් Controller එකේ හදාගත්ත endpoint එකට call කරනවා
+            fetch('/director/getNotificationCount')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(count => {
+                    // Sidebar එකේ Inbox Link එක සොයාගැනීම
+                    // Note: ඔබේ sidebar එකේ inbox link එකේ href එක හරියටම "/director/inbox" විය යුතුයි
+                    const inboxLink = document.querySelector('a[href="/director/inbox"]');
+
+                    if (inboxLink) {
+                        // දැනට badge එකක් තියෙනවද බලනවා
+                        let badge = document.getElementById('sidebar-badge');
+
+                        if (count > 0) {
+                            if (!badge) {
+                                // Badge එක නැත්නම් අලුතින් හදනවා
+                                badge = document.createElement('span');
+                                badge.id = 'sidebar-badge';
+                                // Tailwind CSS classes (ඔබේ Inbox page එකේ තිබුනු විදියටම)
+                                badge.className = 'absolute top-1 right-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full';
+                                inboxLink.appendChild(badge);
+                            }
+                            // Count එක update කරනවා
+                            badge.innerText = count;
+                        } else {
+                            // Count එක 0 නම් සහ badge එකක් තියෙනවා නම් එය ඉවත් කරනවා
+                            if (badge) {
+                                badge.remove();
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching notification count:', error);
+                });
         }
-    });
-</script>
+    </script>
+
+</div>
 </body>
 </html>

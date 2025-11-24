@@ -1,11 +1,7 @@
 package com.hostelManagementSystem.HostelManagementSystem.service;
 
-import com.hostelManagementSystem.HostelManagementSystem.entity.Assistant;
-import com.hostelManagementSystem.HostelManagementSystem.entity.Student;
-import com.hostelManagementSystem.HostelManagementSystem.entity.UserRoles;
-import com.hostelManagementSystem.HostelManagementSystem.repository.AssistantRepository;
-import com.hostelManagementSystem.HostelManagementSystem.repository.StudentRepository;
-import com.hostelManagementSystem.HostelManagementSystem.repository.UserRolesRepository;
+import com.hostelManagementSystem.HostelManagementSystem.entity.*;
+import com.hostelManagementSystem.HostelManagementSystem.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +23,12 @@ public class DashboardRoutingService {
 
     @Autowired
     private AssistantRepository assistantRepo;
+
+    @Autowired
+    private SubWardenRepository subWardenRepo;
+
+    @Autowired
+    private HostelRepository hostelRepo;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -53,8 +55,22 @@ public class DashboardRoutingService {
                 case "dean":
                     return "dean-dashboard";
 
+                // ===============================================================
+                // 🔴 මෙන්න මේ කොටස තමයි වෙනස් කළේ (FIXED)
+                // ===============================================================
                 case "sub warden":
-                    return "sub warden-dashboard";
+                    // මෙතනදී Hostel ID එක චෙක් කරන්න එපා. Sub Warden කෙනෙක්ද කියලා විතරක් බලන්න.
+                    Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+                    if (subWarden.isPresent()){
+                        // Hostel ID තිබුනත් නැතත් Dashboard Controller එකට යවන්න.
+                        // එතනින් (Controller එකෙන්) බලාගනී එයාට ID එකක් තියෙනවද නැද්ද කියලා.
+                        return "redirect:/SubWarden_Dash_Board";
+                    }
+                    else {
+                        model.addAttribute("error", "Sub Warden details not found in database.");
+                        return "login";
+                    }
+                    // ===============================================================
 
                 case "management_assistant":
                     Optional<Assistant> assistant = assistantRepo.findByEmailIgnoreCase(email);
@@ -93,45 +109,42 @@ public class DashboardRoutingService {
         return "login";
     }
 
+    // ... (අනිත් Methods එහෙමම තියන්න) ...
     public boolean existsByEmail(String email) {
         return userRolesRepo.findByEmail(email).isPresent();
     }
 
-    private String determineRoleByEmail(String email) {
-
-        return switch (email.toLowerCase()) {
-            case "vc@pdn.ac.lk", "dvc@pdn.ac.lk" -> "vc_dvc";
-            case "bursar@pdn.ac.lk" -> "student_services_bursar";
-            case "registration@pdn.ac.lk" -> "registration_branch";
-            case "dean@sci.pdn.ac.lk", "dean@dental.pdn.ac.lk", "dean@art.pdn.ac.lk", "dean@eng.pdn.ac.lk" -> "dean";
-            case "director@pdn.ac.lk" -> "director_accommodation_division";
-            case "assistant@pdn.ac.lk" -> "management_assistant";
-            case "subwarden@pdn.ac.lk" -> "sub warden";
-            default -> "student";
-        };
+    public boolean isStudentExists(String email) {
+        return studentRepo.findByEmailIgnoreCase(email).isPresent();
     }
 
+    public boolean isAllowedStaff(String email) {
+        String role = determineRoleByEmail(email);
+        if ("student".equals(role)) return false;
+        if ("management_assistant".equals(role)) return assistantRepo.findByEmailIgnoreCase(email).isPresent();
+        return true;
+    }
+
+    private String determineRoleByEmail(String email) {
+        if (email == null) return "student";
+        String lowerEmail = email.toLowerCase();
+
+        if (lowerEmail.contains("vc@") || lowerEmail.contains("dvc@")) return "vc_dvc";
+        else if (lowerEmail.contains("bursar")) return "student_services_bursar";
+        else if (lowerEmail.contains("registration")) return "registration_branch";
+        else if (lowerEmail.contains("dean")) return "dean";
+        else if (lowerEmail.contains("director")) return "director_accommodation_division";
+        else if (lowerEmail.contains("assistant")) return "management_assistant";
+        else if (lowerEmail.contains("subwarden") || lowerEmail.contains("warden")) return "sub warden";
+
+        return "student";
+    }
 
     public void saveNewUser(String email, String rawPassword) {
         UserRoles newUser = new UserRoles();
         newUser.setEmail(email);
         newUser.setPassword(passwordEncoder.encode(rawPassword));
-        newUser.setRole(determineRoleByEmail(email)); // dynamic role
+        newUser.setRole(determineRoleByEmail(email));
         userRolesRepo.save(newUser);
     }
-
-    @Transactional
-    public UserRoles findOrCreateOAuthUser(String email) {
-        return userRolesRepo.findByEmail(email).orElseGet(() -> {
-            String randomPass = UUID.randomUUID().toString();
-            UserRoles u = new UserRoles();
-            u.setEmail(email);
-            u.setPassword(passwordEncoder.encode(randomPass));
-            u.setRole(determineRoleByEmail(email));
-            return userRolesRepo.save(u);
-        });
-    }
-
-
-
 }

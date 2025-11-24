@@ -10,40 +10,41 @@ public class Hostel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String name;                // Hostel name
     private String type;                // Type of hostel (Male/Female/Mixed)
     private String subWardenEmail;      // Sub Warden's Email
-    private int totalRooms;             // Total rooms in hostel
-    private int availableRooms;         // Available rooms
-    private int fullyAllocatedRooms;    // Fully allocated rooms
-    private int repairRooms;
+    private Integer totalRooms;             // Total rooms in hostel
+    private Integer availableRooms;         // Available rooms
+    private Integer fullyAllocatedRooms;    // Fully allocated rooms
+    private Integer repairRooms;
     private String faculty;// Rooms under repair
-
-
-
     private String location;
+    private Integer ResidentialStudents;
 
 
-
-
-
-    public Hostel() {}
-
-    public Hostel(String name, String type, String subWardenEmail, int totalRooms, int availableRooms, int fullyAllocatedRooms, int repairRooms) {
-        this.name = name;
-        this.type = type;
-        this.subWardenEmail = subWardenEmail;
-        this.totalRooms = totalRooms;
-        this.availableRooms = availableRooms;
-        this.fullyAllocatedRooms = fullyAllocatedRooms;
-        this.repairRooms = repairRooms;
+    public Hostel() {
     }
 
+    public Hostel(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
+//
+//    public Hostel(String name, String type, String subWardenEmail, int totalRooms, int availableRooms, int fullyAllocatedRooms, int repairRooms) {
+//        this.name = name;
+//        this.type = type;
+//        this.subWardenEmail = subWardenEmail;
+//        this.totalRooms = totalRooms;
+//        this.availableRooms = availableRooms;
+//        this.fullyAllocatedRooms = fullyAllocatedRooms;
+//        this.repairRooms = repairRooms;
+//    }
+
     // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -78,5 +79,13 @@ public class Hostel {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Integer getResidentialStudents() {
+        return ResidentialStudents;
+    }
+
+    public void setResidentialStudents(Integer residentialStudents) {
+        ResidentialStudents = residentialStudents;
     }
 }

@@ -30,6 +30,45 @@ public class AuthController {
         return "signup";
     }
 
+    /**
+     * Handles the submission of the signup form.
+     * Checks both Student table AND allowed Staff patterns before registering.
+     */
+    @PostMapping("/signup")
+    public String registerUser(@RequestParam String email,
+                               @RequestParam String password,
+                               @RequestParam(name = "confirm_password") String confirmPassword,
+                               Model model) {
+
+        // 1. Password Match Check
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match.");
+            return "signup";
+        }
+
+        // 2. Already Registered Check (in user_roles table)
+        if (dashboardRoutingService.existsByEmail(email)) {
+            model.addAttribute("error", "This email is already registered.");
+            return "signup";
+        }
+
+        // 3. 🚨 Authorization Check (Student OR Staff)
+        boolean isStudent = dashboardRoutingService.isStudentExists(email);
+        boolean isStaff = dashboardRoutingService.isAllowedStaff(email);
+
+        // If user is NEITHER a student NOR an allowed staff member, block them.
+        if (!isStudent && !isStaff) {
+            model.addAttribute("error", "Only registered University Students or authorized Staff can sign up.");
+            return "signup";
+        }
+
+        // 4. Save New User Role
+        dashboardRoutingService.saveNewUser(email, password);
+
+        // Success: Redirect to login page
+        return "redirect:/login";
+    }
+
     @PostMapping("/login")
     public String login(@RequestParam String email,
                         @RequestParam String password,

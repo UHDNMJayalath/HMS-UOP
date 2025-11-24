@@ -5,75 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="images/Logo.png" type="image/x-icon" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    /* Custom styles for the active sidebar link */
-    .sidebar-link.active {
-      background-color: #3b82f6;
-      color: white;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-
-    /* Custom styles for sidebar animation */
-    .sidebar {
-      transition: transform 0.3s ease-in-out;
-      transform: translateX(-100%); /* Default hidden state for mobile */
-    }
-    .sidebar-visible {
-      transform: translateX(0); /* Visible state */
-    }
-    /* Backdrop for mobile overlay */
-    .sidebar-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 40;
-    }
-    .sidebar-backdrop.active {
-      display: block;
-    }
-
-    /* Media query to override mobile styles for large screens and up (lg: 1024px) */
-    @media (min-width: 1024px) {
-      .sidebar {
-        position: relative !important;
-        transform: translateX(0) !important; /* Always visible on lg+ */
-        height: 100vh;
-        z-index: 10;
-      }
-      .sidebar-backdrop {
-        display: none !important;
-      }
-    }
-    /* Mobile specific fixed position */
-    @media (max-width: 1023px) {
-      .sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        height: 100vh;
-        z-index: 50;
-      }
-    }
+    /* Custom font for consistency */
+    body { font-family: 'Inter', sans-serif; }
+    /* Sidebar Transitions */
+    .sidebar { transition: transform 0.3s ease-in-out; }
   </style>
 </head>
-<body class="bg-gray-100 flex min-h-screen">
+<body class="bg-gray-100 flex h-screen overflow-hidden">
 
-<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
-<div id="sidebar" class="w-64 bg-blue-100 shadow-lg p-6 flex flex-col justify-between rounded-r-lg sidebar lg:relative">
+<div id="sidebar" class="w-64 bg-blue-100 shadow-lg p-6 flex flex-col justify-between rounded-r-lg transition-transform transform lg:translate-x-0 -translate-x-full fixed lg:static z-20 h-full">
   <div>
     <div>
       <div class="p-4 flex items-center border-b border-blue-200 justify-center">
-        <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" >
+        <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none">
       </div>
     </div>
-    <nav class="space-y-4">
-
+    <nav class="space-y-4 mt-4">
       <a href="/Director-AccomodationDivision-dashboard"
          class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
         <i class="fas fa-home mr-3"></i> Dashboard
@@ -82,129 +32,310 @@
          class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
         <i class="fas fa-history mr-3"></i> Allocation History
       </a>
-
       <a href="/Director-User_management"
          class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
         <i class="fas fa-users mr-3"></i> User Management
       </a>
+      <a href="/Director-StudentDetails"
+         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200">
+        <i class="fas fa-graduation-cap mr-3"></i> Student Details
+      </a>
+
+      <a th:href="@{/director/inbox}"
+         th:classappend="${tab == 'inbox'} ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-black'"
+         class="w-full py-2 rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2 transition duration-200 relative">
+        <i class="fas fa-inbox mr-3"></i> Inbox
+
+        <span id="sidebar-badge" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}"
+              class="absolute top-1 right-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+        </span>
+
+      </a>
 
     </nav>
   </div>
-  <div>
-    <a href="/logout" class="flex items-center p-3 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-      <i class="fas fa-sign-out-alt mr-3"></i> Log Out
-    </a>
-  </div>
+  <footer>
+    <div class="text-center mb-6 px-4">
+      <a href="/logout"
+         class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
+        <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+        <span>Log Out</span>
+      </a>
+    </div>
+  </footer>
 </div>
 
-<div class="flex-1 p-4 lg:p-8 overflow-y-auto">
-  <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-blue-200 p-4 lg:p-6 rounded-lg shadow-md mb-8 space-y-4 sm:space-y-0">
-    <div class="flex items-center space-x-4">
-      <button id="toggle-btn" class="lg:hidden text-2xl text-gray-800">&#9776;</button>
-      <img src="images/UniversityLogo.png" alt="University Logo" class="w-12 h-12 object-contain border-none shadow-none outline-none" />
-      <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
-    </div>
-  </header>
+<div id="overlay" class="fixed inset-0 bg-black opacity-50 z-10 hidden lg:hidden"></div>
 
-  <div class="bg-white rounded-xl shadow-lg p-4 lg:p-6">
-    <div class="flex border-b border-gray-200 mb-6">
-      <div class="pb-2 text-blue-600 font-semibold border-b-2 border-blue-600 text-lg">
-        Management Assistant
+<div class="flex-1 p-4 md:p-8 overflow-y-auto h-full flex flex-col">
+
+  <div class="flex-grow">
+
+    <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <button id="toggle-btn" class="lg:hidden text-2xl focus:outline-none text-gray-700 hover:text-blue-600 transition">
+            <i class="fas fa-bars"></i>
+          </button>
+          <img src="images/UniversityLogo.png" alt="University Logo" class="w-10 h-10 md:w-12 md:h-12 object-contain" />
+          <div>
+            <h1 class="text-lg md:text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
+            <p class="text-xs md:text-sm text-blue-800 font-medium hidden sm:block">Director Accommodation Division</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="w-full overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-        <tr>
-          <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Name
-          </th>
-          <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Contact
-          </th>
-        </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-        <tr th:each="user : ${users}">
-          <td class="px-4 py-4 whitespace-nowrap">
-            <div class="text-sm font-medium text-gray-900" th:text="${user.name}"></div>
-          </td>
-          <td class="px-4 py-4 whitespace-nowrap">
-            <div class="text-sm text-gray-500" th:text="${user.contact}"></div>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-gray-200 pb-4">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4 md:mb-0">User Roles</h3>
 
-    <div class="mt-6 flex justify-end">
-      <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-colors duration-200">
-        Add
+        <button class="w-full md:w-auto px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow flex items-center justify-center gap-2"
+                onclick="openAddUserModal()">
+          <i class="fas fa-plus"></i> Add User
+        </button>
+      </div>
+
+      <form th:action="@{/Director-User_management}" method="get" class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+
+        <div class="md:col-span-5">
+          <input type="text" name="keyword" th:value="${keyword}"
+                 placeholder="Search by name or email..."
+                 class="w-full border border-gray-300 p-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+        </div>
+
+        <div class="md:col-span-2">
+          <button type="submit" name="action" value="search"
+                  class="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+            Search
+          </button>
+        </div>
+
+        <div class="md:col-span-3">
+          <select name="role" class="w-full border border-gray-300 p-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700">
+            <option value="">All Roles</option>
+            <option value="Manager" th:selected="${role == 'Manager'}">Management Assistant</option>
+            <option value="SubWarden" th:selected="${role == 'SubWarden'}">Sub Warden</option>
+            <option value="Bursar" th:selected="${role == 'Bursar'}">Bursar</option>
+            <option value="Registrar" th:selected="${role == 'Registrar'}">Registrar</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <button type="submit" name="action" value="filter"
+                  class="w-full px-4 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium">
+            Filter
+          </button>
+        </div>
+      </form>
+
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-blue-100">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Role</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Contact No</th>
+            <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Email</th>
+            <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+          <tr th:each="user : ${users}" class="hover:bg-blue-50 transition duration-150">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${user.name}">John Doe</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                           <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${user.role}">
+                               Sub Warden
+                           </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${user.contact}">0771234567</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" th:text="${user.email}">john@example.com</td>
+
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+              <button type="button"
+                      th:onclick="'openDeleteModal(' + ${user.id} + ')'"
+                      class="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-full transition duration-200">
+                <i class="fas fa-trash-alt mr-1"></i> Remove
+              </button>
+            </td>
+          </tr>
+          <tr th:if="${users == null or users.isEmpty()}">
+            <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+              <div class="flex flex-col items-center justify-center">
+                <i class="fas fa-user-slash text-4xl mb-2 text-gray-300"></i>
+                <p>No users found matching your criteria.</p>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-auto border-t border-gray-200 py-6 px-8">
+    <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+      <p>&copy; 2025 HMS - University of Peradeniya. All rights reserved.</p>
+    </div>
+  </div>
+</div>
+
+<div id="addUserModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
+  <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md transform transition-all scale-100">
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-xl font-bold text-gray-800">Add New User</h3>
+      <button onclick="closeAddUserModal()" class="text-gray-400 hover:text-gray-600">
+        <i class="fas fa-times text-xl"></i>
       </button>
     </div>
+
+    <form th:action="@{/Director-User_management/add}" method="post" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+        <input type="text" name="name" placeholder="Enter full name" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">User Role</label>
+        <select name="role" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white" required>
+          <option value="">Select Role</option>
+          <option value="Manager">Management Assistant</option>
+          <option value="SubWarden">Sub Warden</option>
+          <option value="Bursar">Bursar</option>
+          <option value="Registrar">Registrar</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+        <input type="text" name="contact" placeholder="07X XXXXXXX" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+        <input type="email" name="email" placeholder="user@example.com" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-3 border-t mt-2">
+        <button type="button" onclick="closeAddUserModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Save User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="deleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
+  <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm transform transition-all scale-100 text-center">
+
+    <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-100 mb-4">
+      <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+    </div>
+
+    <h3 class="text-xl font-bold text-gray-900 mb-2">Delete User?</h3>
+    <p class="text-sm text-gray-500 mb-6">
+      Are you sure you want to remove this user? This action cannot be undone.
+    </p>
+
+    <form id="deleteForm" method="post">
+      <div class="flex justify-center space-x-3">
+        <button type="button" onclick="closeDeleteModal()" class="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
+          Cancel
+        </button>
+        <button type="submit" class="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium shadow-lg shadow-red-600/30">
+          Yes, Delete
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
 <script>
+  // Sidebar Toggle Logic
   const sidebar = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('toggle-btn');
-  const backdrop = document.getElementById('sidebarBackdrop');
+  const overlay = document.getElementById('overlay');
 
-  const LG_BREAKPOINT = 1024; // Tailwind's lg breakpoint
-
-  // Function to open the sidebar
-  function openSidebar() {
-    if (window.innerWidth < LG_BREAKPOINT) {
-      sidebar.classList.add('sidebar-visible');
-      sidebar.classList.remove('sidebar-hidden');
-      backdrop.classList.add('active');
-    }
-  }
-
-  // Function to close the sidebar
-  function closeSidebar() {
-    if (window.innerWidth < LG_BREAKPOINT) {
-      sidebar.classList.remove('sidebar-visible');
-      sidebar.classList.add('sidebar-hidden');
-      backdrop.classList.remove('active');
-    }
-  }
-
-  // Event listeners
-  toggleBtn.addEventListener('click', openSidebar);
-  backdrop.addEventListener('click', closeSidebar); // Close when clicking the backdrop
-
-  // Optional: Close sidebar on link click (for better mobile experience)
-  document.querySelectorAll('#sidebar a').forEach(link => {
-    link.addEventListener('click', () => {
-      if (window.innerWidth < LG_BREAKPOINT) {
-        closeSidebar();
-      }
-    });
-  });
-
-  // Handle window resize: If resized to LG+ screen, ensure sidebar is visible
-  window.addEventListener('resize', function() {
-    if (window.innerWidth >= LG_BREAKPOINT) {
-      // Ensure classes are removed for desktop view
-      sidebar.classList.remove('sidebar-visible');
-      sidebar.classList.remove('sidebar-hidden');
-      backdrop.classList.remove('active');
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = !sidebar.classList.contains('-translate-x-full');
+    if(isOpen) {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
     } else {
-      // On resize back to mobile, re-hide it if it was open
-      closeSidebar();
+      sidebar.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
     }
   });
 
-  // Initialize sidebar state on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.innerWidth < LG_BREAKPOINT) {
-      // For mobile, ensure the sidebar is initially hidden
-      sidebar.classList.add('sidebar-hidden');
-    }
+  overlay.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
   });
+
+  // Add User Modal Logic
+  function openAddUserModal() {
+    document.getElementById('addUserModal').classList.remove('hidden');
+  }
+  function closeAddUserModal() {
+    document.getElementById('addUserModal').classList.add('hidden');
+  }
+
+  // Delete Modal Logic
+  function openDeleteModal(userId) {
+    document.getElementById('deleteModal').classList.remove('hidden');
+    // Set dynamic action for the form
+    const deleteForm = document.getElementById('deleteForm');
+    deleteForm.action = '/Director-User_management/delete/' + userId;
+  }
+
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    updateSidebarBadge();
+  });
+
+  function updateSidebarBadge() {
+    // අපි කලින් Controller එකේ හදාගත්ත endpoint එකට call කරනවා
+    fetch('/director/getNotificationCount')
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(count => {
+              // Sidebar එකේ Inbox Link එක සොයාගැනීම
+              // Note: ඔබේ sidebar එකේ inbox link එකේ href එක හරියටම "/director/inbox" විය යුතුයි
+              const inboxLink = document.querySelector('a[href="/director/inbox"]');
+
+              if (inboxLink) {
+                // දැනට badge එකක් තියෙනවද බලනවා
+                let badge = document.getElementById('sidebar-badge');
+
+                if (count > 0) {
+                  if (!badge) {
+                    // Badge එක නැත්නම් අලුතින් හදනවා
+                    badge = document.createElement('span');
+                    badge.id = 'sidebar-badge';
+                    // Tailwind CSS classes (ඔබේ Inbox page එකේ තිබුනු විදියටම)
+                    badge.className = 'absolute top-1 right-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full';
+                    inboxLink.appendChild(badge);
+                  }
+                  // Count එක update කරනවා
+                  badge.innerText = count;
+                } else {
+                  // Count එක 0 නම් සහ badge එකක් තියෙනවා නම් එය ඉවත් කරනවා
+                  if (badge) {
+                    badge.remove();
+                  }
+                }
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching notification count:', error);
+            });
+  }
 </script>
-
 </body>
 </html>

@@ -5,11 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface HostelRepository extends JpaRepository<Hostel, Long> {
-
-    long count();
+public interface HostelRepository extends JpaRepository<Hostel, Integer> {
 
     // Corrected method names that match entity properties
     List<Hostel> findByFaculty(String faculty);  // Now matches the faculty field
@@ -21,4 +20,9 @@ public interface HostelRepository extends JpaRepository<Hostel, Long> {
 
     List<Hostel> findByFacultyAndLocation(String faculty, String location);
     List<Hostel> findByNameContainingIgnoreCase(String name);
+
+    Optional<Hostel> findById(Integer integer);
+
+
+    //Hostel findById(Integer hostelId);
 }
