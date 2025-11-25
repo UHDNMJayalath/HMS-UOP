@@ -36,4 +36,11 @@ public interface AllocationRepository extends JpaRepository<Allocation, Allocati
     List<Allocation> findByStudentIdAndHostelId(String studentId, Integer hostelId);
 
     List<Allocation> findByRoomIdAndHostelId(String roomId, Integer hostelId);
+
+    Optional<Allocation> findByStudentIdAndHostelIdAndAcademicYear(
+            String studentId, Integer hostelId, Integer academicYear);
+
+    List<Allocation> findByHostelIdAndDeallocatedDateIsNull(Integer hostelId);
+
+    List<Allocation> findByStudentIdAndDeallocatedDateIsNull(String studentId);
 }

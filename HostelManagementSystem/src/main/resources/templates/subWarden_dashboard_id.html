@@ -43,8 +43,12 @@
 
             <a href="/subwarden_compaints"
                class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
-                <img src="images/Complain.svg" class="w-5 h-5" />
-                <span>Complaints</span>
+                <img src="images/Complain.svg" class="w-5 h-5" /> <span>Complaints</span>
+            </a>
+
+            <a href="/subWardenPayments"
+               class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+                <img src="images/Complain.svg" class="w-5 h-5" /> <span>Payments</span>
             </a>
         </div>
     </div>
@@ -52,11 +56,11 @@
     <!-- Logout Button -->
     <footer>
         <div class="text-center mb-6 px-4">
-            <a href="/logout"
-               class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2 transition shadow-sm">
-                <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+            <button type="button"
+                    class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 flex items-center justify-center space-x-2">
+                <img src="images/LogOut.png" class="w-5 h-5 -rotate-90" />
                 <span>Log Out</span>
-            </a>
+            </button>
         </div>
     </footer>
 </div>
@@ -100,7 +104,7 @@
 
 
         <!-- Search Student -->
-        <form th:action="@{/subWarden/searchStudent}" method="post" class="flex justify-center mb-6">
+        <form th:action="@{/subWarden/searchStudent}" method="get" class="flex justify-center mb-6">
             <div class="flex space-x-2">
                 <input name="studentId"
                        id="searchInput"
@@ -119,6 +123,11 @@
             </div>
         </form>
 
+        <div th:if="${error}"
+             class="mb-4 rounded-lg bg-red-100 border border-red-400 text-red-700 px-4 py-3">
+            <p th:text="${error}" class="font-medium"></p>
+        </div>
+
 
 
         <!-- Student Data -->
@@ -127,8 +136,8 @@
             <div class="space-y-3">
                 <div class="flex"><h3 class="w-40 font-semibold">Name</h3><span class="w-8">:</span><p th:text="${student.name}">########</p></div>
                 <div class="flex"><h3 class="w-40 font-semibold">Student ID</h3><span class="w-8">:</span><p th:text="${student.studentId}">S20###</p></div>
-                <div class="flex"><h3 class="w-40 font-semibold">Room No</h3><span class="w-8">:</span><p th:text="${student.roomNo}">R###</p></div>
-                <div class="flex"><h3 class="w-40 font-semibold">Contact</h3><span class="w-8">:</span><p th:text="${student.contact}">########</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Room No</h3><span class="w-8">:</span><p th:if="${allocation != null}" th:text="${allocation.roomId}">R###</p></div>
+                <div class="flex"><h3 class="w-40 font-semibold">Contact</h3><span class="w-8">:</span><p th:text="${student.phoneNo1}">########</p></div>
                 <div class="flex"><h3 class="w-40 font-semibold">Faculty</h3><span class="w-8">:</span><p th:text="${student.faculty}">Science</p></div>
                 <div class="flex"><h3 class="w-40 font-semibold">Academic Year</h3><span class="w-8">:</span><p th:text="${student.academicYear}">2nd Year</p></div>
                 <div class="flex"><h3 class="w-40 font-semibold">Distance</h3><span class="w-8">:</span><p th:text="${student.distance}">15 km</p></div>
@@ -143,7 +152,13 @@
                     <li th:each="d : ${damages}">
                         <span class="font-medium" th:text="${d.hostel}">Broken chair</span>
                         <span class="font-medium" th:text="${d.fine}">Broken chair</span>
-                        <span class="font-medium" th:text="${d.paymentStatus}">Broken chair</span>
+                        <span class="font-medium" th:text="${d.description}">Broken chair</span>
+                        <span th:text="${#strings.equalsIgnoreCase(d.paymentStatus, 'paid') ? 'Paid' : 'Not Paid'}"
+                              th:classappend="${#strings.equalsIgnoreCase(d.paymentStatus, 'paid') ? 'text-green-600' : 'text-red-600'}"
+                              class="font-medium">
+</span>
+
+
 
                     </li>
                 </ul>
@@ -151,21 +166,61 @@
                 <p th:if="${#lists.isEmpty(damages)}" class="text-gray-500">No damage history</p>
             </div>
 
+            <!-- Deallocation Button -->
+            <form th:action="@{/subWarden/deallocate}" method="post" class="mt-6">
+                <input type="hidden" name="studentId" th:value="${student.studentId}">
+                <input type="hidden" name="hostelId" th:value="${hostel.id}">
+                <input type="hidden" name="roomId" th:value="${allocation.roomId}">
 
+                <button type="submit"
+                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
+                        onclick="return confirm('Are you sure you want to deallocate this student?');">
+                    Deallocate
+                </button>
+            </form>
 
 
             <!-- Add New Damage -->
-                <form th:action="@{/addDamage}" method="post" class="mt-4">
-                    <input type="hidden" name="studentId" th:value="${student.studentId}">
-                    <textarea name="description" placeholder="Enter new damage..."
-                              class="w-full px-3 py-2 border rounded-lg"></textarea>
+            <form th:action="@{subWarden/addDamage}" method="post" class="mt-4 bg-white p-6 rounded-lg shadow-md">
+                <input type="hidden" name="studentId" th:value="${student.studentId}">
+                <input type="hidden" name="hostel" th:value="${hostel.id}">
+
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Report New Damage</h3>
+
+                <div class="mb-4">
+                    <label for="fine" class="block text-sm font-medium text-gray-700 mb-2">
+                        Fine Amount
+                    </label>
+                    <input type="number" id="fine" name="fine" step="0.01" placeholder="Enter fine amount..."
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                </div>
+
+                <div class="mb-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
+                    <textarea id="description" name="description" placeholder="Enter damage description..." rows="4"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" required></textarea>
+                </div>
+
+                <div class="flex gap-3">
                     <button type="submit"
-                            class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                        Submit
+                            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out transform hover:scale-105">
+                        Submit Report
                     </button>
-                </form>
-            </div>
+                    <button type="reset"
+                            class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out">
+                        Clear
+                    </button>
+                </div>
+            </form>
         </div>
+
+        <!--        <div th:if="${student == null}" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">-->
+        <!--            <p class="font-semibold">⚠️ Student Not Found</p>-->
+        <!--            <p class="text-sm">The requested student record could not be found.</p>-->
+        <!--            <span class="font-medium" th:text="${error}">Broken chair</span>-->
+        <!--        </div>-->
 
         <!-- 3. ADD NEW ROOM BUTTON AND FORM (below the dashboard stats) -->
         <!-- Add New Room Section -->
@@ -210,29 +265,29 @@
                                    th:value="${floor}">
                         </div>
 
-<!--                        &lt;!&ndash; Room Type &ndash;&gt;-->
-<!--                        <div x-data="{ open: false, selected: 'Select Type', selectedValue: '' }">-->
-<!--                            <label class="block text-sm font-medium text-gray-700 mb-2">Room Type</label>-->
-<!--                            <div class="relative">-->
-<!--                                <button type="button" @click="open = !open"-->
-<!--                                        class="w-full px-3 py-2 text-left border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">-->
-<!--                                    <span x-text="selected" class="block truncate"></span>-->
-<!--                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2">-->
-<!--                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
-<!--                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>-->
-<!--                                </svg>-->
-<!--                            </span>-->
-<!--                                </button>-->
-<!--                                <ul x-show="open" @click.outside="open = false"-->
-<!--                                    class="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg">-->
-<!--                                    <li @click="selected = 'Available'; selectedValue = 'Available'; open = false"-->
-<!--                                        class="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">Available</li>-->
-<!--                                    <li @click="selected = 'Repair'; selectedValue = 'Repair'; open = false"-->
-<!--                                        class="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">Repair</li>-->
-<!--                                </ul>-->
-<!--                                <input type="hidden" name="type" th:value="selectedValue" required>-->
-<!--                            </div>-->
-<!--                        </div>-->
+                        <!--                        &lt;!&ndash; Room Type &ndash;&gt;-->
+                        <!--                        <div x-data="{ open: false, selected: 'Select Type', selectedValue: '' }">-->
+                        <!--                            <label class="block text-sm font-medium text-gray-700 mb-2">Room Type</label>-->
+                        <!--                            <div class="relative">-->
+                        <!--                                <button type="button" @click="open = !open"-->
+                        <!--                                        class="w-full px-3 py-2 text-left border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">-->
+                        <!--                                    <span x-text="selected" class="block truncate"></span>-->
+                        <!--                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2">-->
+                        <!--                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+                        <!--                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>-->
+                        <!--                                </svg>-->
+                        <!--                            </span>-->
+                        <!--                                </button>-->
+                        <!--                                <ul x-show="open" @click.outside="open = false"-->
+                        <!--                                    class="absolute z-10 mt-1 w-full border border-gray-300 rounded-lg bg-white shadow-lg">-->
+                        <!--                                    <li @click="selected = 'Available'; selectedValue = 'Available'; open = false"-->
+                        <!--                                        class="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">Available</li>-->
+                        <!--                                    <li @click="selected = 'Repair'; selectedValue = 'Repair'; open = false"-->
+                        <!--                                        class="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer">Repair</li>-->
+                        <!--                                </ul>-->
+                        <!--                                <input type="hidden" name="type" th:value="selectedValue" required>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
 
                         <!-- Capacity -->
                         <div>

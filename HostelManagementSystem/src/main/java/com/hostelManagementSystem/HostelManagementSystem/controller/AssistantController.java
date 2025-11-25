@@ -71,6 +71,10 @@ public class AssistantController {
             @RequestParam("gender") String gender,
             HttpSession session, Model model) {
 
+        System.out.println("facultyId: " + facultyId);
+        System.out.println("intakeId: " + intakeId);
+        System.out.println("gender: " + gender);
+
         String email = (String) session.getAttribute("loggedInUserEmail");
 
         if (email == null) {
@@ -84,6 +88,17 @@ public class AssistantController {
             Batch batch = batchService.findByFacultyAndIntake(facultyId, intakeId);
             if (batch != null) {
                 List<Student> studentList = studentService.loadBatchByGender(batch.getId(), gender);
+                if (studentList != null) {
+                    System.out.println("Student list not null");
+                    for (Student student : studentList) {
+                        System.out.println(student.getStudentId());
+                    }
+                    if (studentList.size() == 0) {
+                        System.out.println("Student list is empty");
+                    }
+                } else {
+                    System.out.println("Student list is null");
+                }
                 model.addAttribute("students", studentList);
                 model.addAttribute("facultyId", facultyId);
                 model.addAttribute("intakeId", intakeId);

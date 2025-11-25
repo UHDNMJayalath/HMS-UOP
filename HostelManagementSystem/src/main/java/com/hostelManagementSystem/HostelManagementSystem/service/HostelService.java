@@ -31,6 +31,10 @@ public class HostelService {
         this.hostelRepo = hostelRepository;
     }
 
+    public void saveHostel(Hostel hostel){
+        this.hostelRepo.save(hostel);
+    }
+
     public List<Hostel> getAllHostels() {
         return hostelRepo.findAll();
     }
@@ -65,8 +69,7 @@ public class HostelService {
     }
 
     public Optional<Hostel> getHostelById(Integer hostelID){
-        Optional<Hostel> hostel = hostelRepo.findById(hostelID);
-        return hostel;
+        return hostelRepo.findById(hostelID);
     }
 
     public int getRoomCount(Integer hostelID){
@@ -150,6 +153,8 @@ public class HostelService {
 
         for (String regNo : studentRegNos) {
             Student student = studentService.findById(regNo);
+            student.setAcademicYear(academicYear);
+            studentService.saveStudent(student);
             Allocation allocation = new Allocation(student.getStudentId(),hostelId,academicYear);
             allocations.add(allocation);
         }

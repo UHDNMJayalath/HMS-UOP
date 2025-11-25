@@ -1,22 +1,23 @@
 package com.hostelManagementSystem.HostelManagementSystem.controller;
 
-import com.hostelManagementSystem.HostelManagementSystem.dto.ComplaintDTO; // DTO Import
+import com.google.api.client.util.DateTime;
+import com.hostelManagementSystem.HostelManagementSystem.dto.ComplaintDTO;
 import com.hostelManagementSystem.HostelManagementSystem.dto.RoomDetails;
 import com.hostelManagementSystem.HostelManagementSystem.entity.*;
-import com.hostelManagementSystem.HostelManagementSystem.repository.*;
+import com.hostelManagementSystem.HostelManagementSystem.repository.*; // Updated to include all repos
 import com.hostelManagementSystem.HostelManagementSystem.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity; // Added
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map; // Added
 import java.util.Optional;
 
 @Controller
@@ -24,147 +25,129 @@ public class SubWardenController {
 
     @Autowired
     private HostelService hostelService;
-    @Autowired
-    private SubWardenRepository subWardenRepo;
-    @Autowired
-    private HostelRepository hostelRepo;
+
     @Autowired
     private SubWardenService subWardenService;
+
     @Autowired
     private RoomService roomService;
+
+    @Autowired
+    private SubWardenRepository subWardenRepo;
+
+    @Autowired
+    private HostelRepository hostelRepo;
+
     @Autowired
     private AllocationService allocationService;
+
     @Autowired
     private StudentService studentService;
+
     @Autowired
     private DamageRepository damageRepo;
 
     @Autowired
-    private ComplaintRequestRepository complaintRepo; // පැමිණිලි සඳහා Repository එක
+    private PaymentRepository paymentRepo;
 
-    // ============================================================
-    // 1. MAIN DASHBOARD LOGIC (WITH HOSTEL SELECTION)
-    // ============================================================
+    @Autowired
+    private PaymentService paymentService;
+
+    // Added: Complaint Repository Autowiring
+    @Autowired
+    private ComplaintRequestRepository complaintRequestRepo;
+
     @RequestMapping("/SubWarden_Dash_Board")
     public String getDashBoard(HttpSession session, Model model){
 
         String email = (String) session.getAttribute("loggedInUserEmail");
-        if (email == null) return "redirect:/login";
-
-        Optional<SubWarden> subWardenOpt = subWardenRepo.findByEmailIgnoreCase(email);
-
-        if (subWardenOpt.isPresent()){
-            SubWarden subWarden = subWardenOpt.get();
-
-            // 🔴 CHECK 1: If Hostel ID is NULL, redirect to Selection Page
-            if (subWarden.getHostelId() == null) {
-                List<Hostel> allHostels = hostelService.getAllHostels();
-                model.addAttribute("hostels", allHostels);
-                return "subwarden_select_hostel";
-            }
-
-            // 🔴 CHECK 2: If ID exists but Hostel not found (e.g. deleted)
-            Optional<Hostel> hostel = hostelRepo.findById(subWarden.getHostelId());
-            if (hostel.isEmpty()){
-                List<Hostel> allHostels = hostelService.getAllHostels();
-                model.addAttribute("hostels", allHostels);
-                return "subwarden_select_hostel";
-            }
-
-            // 🟢 SUCCESS: Go to Dashboard
-            model.addAttribute("subwarden", subWarden);
-            model.addAttribute("hostel", hostel.get());
-
-            return "subWarden_dashboard_id";
-        }
-
-        return "redirect:/login";
-    }
-
-    // ============================================================
-    // 2. ASSIGN HOSTEL ACTION (Saves the selection)
-    // ============================================================
-    @PostMapping("/subwarden/assignHostel")
-    public String assignHostel(@RequestParam Integer hostelId, HttpSession session) {
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        if (email == null) return "redirect:/login";
-
-        Optional<SubWarden> subWardenOpt = subWardenRepo.findByEmailIgnoreCase(email);
-        if (subWardenOpt.isPresent()) {
-            SubWarden subWarden = subWardenOpt.get();
-            subWarden.setHostelId(hostelId);
-            subWardenRepo.save(subWarden);
-
-            Optional<Hostel> hostelOpt = hostelRepo.findById(hostelId);
-            if(hostelOpt.isPresent()){
-                Hostel hostel = hostelOpt.get();
-                hostel.setSubWardenEmail(email);
-                hostelRepo.save(hostel);
-            }
-        }
-        return "redirect:/SubWarden_Dash_Board";
-    }
-
-    // ============================================================
-    // 3. ROOMS PAGE
-    // ============================================================
-    @RequestMapping("/Rooms")
-    public String searchRoomPage(HttpSession session, Model model){
-        String email = (String) session.getAttribute("loggedInUserEmail");
-        if (email == null) return "redirect:/login";
 
         Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
-        if (subWarden.isPresent() && subWarden.get().getHostelId() != null){
-            model.addAttribute("subwarden", subWarden.get());
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
+
+            if (hostel.isPresent()){
+                model.addAttribute("hostel", hostel.get());
+                System.out.println("Total rooms : " + hostel.get().getTotalRooms());
+                return "subWarden_dashboard_id";
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    @RequestMapping("/Rooms")
+    public String searchRoom(HttpSession session, Model model){
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
             Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
 
             if (hostel.isPresent()){
                 model.addAttribute("hostel", hostel.get());
                 return "subwarden-rooms";
             }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
         }
-        return "redirect:/SubWarden_Dash_Board";
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
     }
 
-    // ============================================================
-    // 4. ALLOCATION PAGE
-    // ============================================================
     @GetMapping("/room-allocation")
     public String getRoomAllocationPage(HttpSession session, Model model){
         String email = (String) session.getAttribute("loggedInUserEmail");
-        if (email == null) return "redirect:/login";
 
         Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
-        if (subWarden.isPresent() && subWarden.get().getHostelId() != null){
-            model.addAttribute("subwarden", subWarden.get());
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
             Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
 
             if (hostel.isPresent()){
                 model.addAttribute("hostel", hostel.get());
-
+                System.out.println("Total rooms : " + hostel.get().getTotalRooms());
                 List<Room> totalFreeRooms = hostelService.getFullyAvailableRooms(hostel.get().getId());
                 List<Room> partiallyFreeRooms = hostelService.getPartiallyAvailableRooms(hostel.get().getId());
                 List<Allocation> allocations = allocationService.findByHostelId(hostel.get().getId());
 
                 List<Student> students = new ArrayList<>();
+
                 for (Allocation allocation: allocations){
                     if (allocation.getRoomId() == null){
-                        Student student = studentService.findById(allocation.getStudentId());
-                        if(student != null) {
-                            student.setAcademicYear(allocation.getAcademicYear());
-                            students.add(student);
-                        }
+                        Student student = this.studentService.findById(allocation.getStudentId());
+                        student.setAcademicYear(allocation.getAcademicYear());
+                        students.add(student);
                     }
                 }
 
-                model.addAttribute("totalFreeRooms", totalFreeRooms);
-                model.addAttribute("partiallyFreeRooms", partiallyFreeRooms);
+                model.addAttribute("totalFreeRooms",totalFreeRooms);
+                model.addAttribute("partiallyFreeRooms",partiallyFreeRooms);
                 model.addAttribute("students", students);
 
                 return "subwarden-room-allocation";
             }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
         }
-        return "redirect:/SubWarden_Dash_Board";
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
     }
 
     // ============================================================
@@ -186,7 +169,7 @@ public class SubWardenController {
                 String hostelName = hostelOpt.get().getName();
 
                 // අදාළ Hostel එකේ Complaints ටික ගන්නවා (Repository method එකෙන්)
-                List<ComplaintRequest> complaints = complaintRepo.findBySubWardenHostel(hostelName);
+                List<ComplaintRequest> complaints = complaintRequestRepo.findBySubWardenHostel(hostelName);
 
                 // DTO ලිස්ට් එකට හරවනවා (HTML එකට යවන්න)
                 List<ComplaintDTO> complaintDTOS = new ArrayList<>();
@@ -206,120 +189,454 @@ public class SubWardenController {
         return "subwarden_compaints";
     }
 
-    // ============================================================
-    // 6. UPDATE COMPLAINT STATUS (API for JavaScript)
-    // ============================================================
+    // --- NEW METHOD: Update Complaint Status ---
     @PostMapping("/complaints/update/{id}")
     @ResponseBody
-    public ResponseEntity<String> updateComplaintStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
-        Optional<ComplaintRequest> complaintOpt = complaintRepo.findById(id);
+    public ResponseEntity<?> updateComplaintStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        Optional<ComplaintRequest> complaintOpt = complaintRequestRepo.findById(id);
 
         if (complaintOpt.isPresent()) {
             ComplaintRequest complaint = complaintOpt.get();
-            String newState = payload.get("state");
+            String newStatus = payload.get("state"); // The JS sends 'state', we map it to 'status'
 
-            complaint.setStatus(newState);
-            complaintRepo.save(complaint);
+            complaint.setStatus(newStatus);
+            complaintRequestRepo.save(complaint);
 
-            return ResponseEntity.ok("Updated");
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Complaint not found");
-    }
-
-    // ============================================================
-    // 7. ADD ROOM
-    // ============================================================
-    @PostMapping("/addRoom")
-    public String addRoom(@RequestParam String roomNo, @RequestParam Integer floor,
-                          @RequestParam Integer capacity, @RequestParam Integer hostelId,
-                          HttpSession session){
-        if (session.getAttribute("loggedInUserEmail") == null) return "redirect:/login";
-        hostelService.addRoom(hostelId, roomNo, floor, capacity);
-        return "redirect:/SubWarden_Dash_Board";
-    }
-
-    // ============================================================
-    // 8. SEARCH STUDENT
-    // ============================================================
-    @PostMapping("/subWarden/searchStudent")
-    public String searchStudent(HttpSession session, @RequestParam String studentId,
-                                @RequestParam Integer hostelId, RedirectAttributes ra) {
-
-        if (session.getAttribute("loggedInUserEmail") == null) return "redirect:/login";
-
-        List<Allocation> allocations = allocationService.findByStudentIdAndHostelId(studentId, hostelId);
-        boolean found = false;
-
-        if(allocations != null){
-            for (Allocation allocation: allocations) {
-                if (allocation != null && allocation.getDeallocatedDate() == null) {
-                    Student student = studentService.findById(studentId);
-                    if (student != null) {
-                        ra.addFlashAttribute("student", student);
-                        List<Damage> damages = damageRepo.findByStudent(student);
-                        ra.addFlashAttribute("damages", damages);
-                        found = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!found) {
-            ra.addFlashAttribute("error", "Student not found or not allocated to this hostel.");
-        }
-        return "redirect:/SubWarden_Dash_Board";
-    }
-
-    // ============================================================
-    // 9. SEARCH ROOM
-    // ============================================================
-    @RequestMapping("/subWarden/searchRoom")
-    public String searchRoom(HttpSession session, @RequestParam String roomNo,
-                             @RequestParam Integer hostelId, RedirectAttributes ra) {
-
-        if (session.getAttribute("loggedInUserEmail") == null) return "redirect:/login";
-
-        Room room = roomService.findById(new RoomID(hostelId, roomNo));
-        if(room != null) {
-            List<Allocation> allocations = allocationService.findByRoomIdAndHostelId(roomNo,hostelId);
-            List<Student> students = new ArrayList<>();
-            if (allocations != null) {
-                for (Allocation allocation : allocations) {
-                    if (allocation.getDeallocatedDate() == null) {
-                        Student s = studentService.findById(allocation.getStudentId());
-                        if (s != null) students.add(s);
-                    }
-                }
-            }
-
-            RoomDetails roomDetails = new RoomDetails(
-                    room.getRoomNo(), hostelId, room.getCapacity(),
-                    room.getCurrentAllocations(), room.getStatus(), students
-            );
-            ra.addFlashAttribute("room", roomDetails);
+            return ResponseEntity.ok().body(Map.of("message", "Status updated successfully"));
         } else {
-            ra.addFlashAttribute("error", "Room not found.");
+            return ResponseEntity.badRequest().body(Map.of("error", "Complaint not found"));
         }
-        return "redirect:/Rooms";
     }
 
-    // ============================================================
-    // 10. SAVE ROOM DETAILS
-    // ============================================================
-    @PostMapping("/subwarden/saveRoom")
-    public String saveRoom(HttpSession session, @RequestParam String status,
-                           @RequestParam Integer capacity, @RequestParam Integer hostelId,
-                           @RequestParam String roomNo){
+    @RequestMapping("/subWardenPayments")
+    public String getPaymentPage(HttpSession session,
+                                 @RequestParam(required = false) String studentId,
+                                 @RequestParam(required = false) String paymentType,
+                                 Model model){
+        String email = (String) session.getAttribute("loggedInUserEmail");
 
-        if (session.getAttribute("loggedInUserEmail") == null) return "redirect:/login";
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostelOpt = hostelRepo.findById(subWarden.get().getHostelId());
+
+            List<Payment> payments = new ArrayList<>();
+            List<Payment> properPayments = new ArrayList<>();
+
+            if (hostelOpt.isPresent()){
+                Hostel hostel = hostelOpt.get();
+                model.addAttribute("hostel", hostel);
+                payments = paymentService.getPaymentsByCurrentStudents(hostel.getId());
+
+                // Apply filters based on parameters
+                if (studentId != null && !studentId.isEmpty()) {
+                    for (Payment payment: payments){
+                        if (studentId.equalsIgnoreCase(payment.getStudent().getStudentId())){
+                            properPayments.add(payment);
+                        }
+                    }
+                }
+                else if (paymentType != null && !paymentType.isEmpty()) {
+                    for (Payment payment: payments){
+                        if (paymentType.equalsIgnoreCase(payment.getPaymentType())){
+                            properPayments.add(payment);
+                        }
+                    }
+                }
+                else {
+                    properPayments = payments;
+                }
+
+                model.addAttribute("payments", properPayments);
+                model.addAttribute("studentId", studentId);
+                model.addAttribute("paymentType", paymentType);
+
+                return "subwarden_payment_verification";
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    @PostMapping("/addRoom")
+    public String addRoom(
+            @RequestParam(value = "roomNo", required = true) String roomNo,
+            @RequestParam(value = "floor", required = true) Integer floor,
+            @RequestParam(value = "capacity", required = true) Integer capacity,
+            @RequestParam(value = "hostelId", required = true) Integer hostelId,
+            @RequestParam(value = "subWardenId", required = true) Integer subWardenId,
+            HttpSession session,
+            Model model){
+
+        System.out.println("Request Received");
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        if (email == null) {
+            return "redirect:/login";
+        }
+
+        Optional<SubWarden> subWardenOptional = subWardenService.getSubWardenByEmail(email);
+
+        if (subWardenOptional.isPresent()){
+            System.out.println("Sub warden found : " + subWardenOptional.get().getName());
+            Optional<Hostel> hostelOptional = hostelService.getHostelById(hostelId);
+
+            System.out.println("Hostel found : " + hostelOptional.get().getName());
+
+            Room room = new Room(hostelId, roomNo, floor, capacity);
+            hostelService.addRoom(room);
+            model.addAttribute("subwarden", subWardenOptional.get());
+            model.addAttribute("hostel", hostelOptional.get());
+            System.out.println("Room saved");
+
+            return "redirect:/SubWarden_Dash_Board";
+        }
+
+        return null;
+    }
+
+    @GetMapping("/SubWardon-dashboard-allocation")
+    public String getAllocationPage(HttpSession session, Model model){
+        return "hostel_allocation";
+    }
+
+    @GetMapping("/subWarden/searchStudent")
+    public String getStudent(HttpSession session, @RequestParam String studentId,
+                             @RequestParam Integer hostelId, Model model,RedirectAttributes redirectAttributes){
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
+            System.out.println("Hostel found :" + hostel.get().getName());
+            System.out.println("Student : " + studentId);
+
+            if (hostel.isPresent()){
+                model.addAttribute("hostel", hostel.get());
+
+                List<Allocation> allocations = allocationService.findByStudentIdAndHostelId(studentId,hostelId);
+
+                if(allocations != null){
+                    System.out.println("Allocation list is not null");
+                    System.out.println("length : " + allocations.size());
+
+                }
+                else {
+                    System.out.println("Allocation list is null");
+                }
+                if (allocations.size() == 0){
+                    redirectAttributes.addFlashAttribute("error", "Student not found");
+                }
+
+                for (Allocation allocation: allocations) {
+                    System.out.println("enter to for loop");
+                    if (allocation != null && allocation.getDeallocatedDate() == null) {
+                        System.out.println("entering if statement");
+                        Student student = studentService.findById(studentId);
+                        System.out.println("Allocation found : " + allocation.getStudentId());
+                        System.out.println("Student found : " + student.getStudentId());
+                        model.addAttribute("student", student);
+                        redirectAttributes.addFlashAttribute("student", student);
+                        redirectAttributes.addFlashAttribute("allocation", allocation);
+                        List<Damage> damages = damageRepo.findByStudent(student);
+                        redirectAttributes.addFlashAttribute("damages", damages);
+                        //break;
+                    } else {
+                        model.addAttribute("error", "Student details not found.");
+                        System.out.println("Student not found");
+                    }
+
+                }
+                return "redirect:/SubWarden_Dash_Board";
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    @PostMapping("/subWarden/searchRoom")
+    public String rooms(HttpSession session, @RequestParam String roomNo,
+                        @RequestParam Integer hostelId, Model model, RedirectAttributes redirectAttributes){
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
+            System.out.println("Hostel found : " + hostel.get().getName());
+            if (hostel.isPresent()){
+                model.addAttribute("hostel", hostel.get());
+                Room room = roomService.findById(new RoomID(hostelId, roomNo));
+
+                List<Allocation> allocations = allocationService.findByRoomIdAndHostelId(roomNo,hostelId);
+                List<Student> students = new ArrayList<>();
+                if (allocations != null) {
+                    for (Allocation allocation : allocations) {
+                        if (allocation.getDeallocatedDate() == null) {
+                            Student student = studentService.findById(allocation.getStudentId());
+                            students.add(student);
+                        }
+                    }
+                }
+
+                if (room != null){
+                    System.out.println("Room Found : " + room.getRoomNo());
+                    model.addAttribute("room", room);
+                    RoomDetails roomDetails = new RoomDetails(room.getRoomNo(), room.getHostelId(), room.getCapacity(), room.getCurrentAllocations(), room.getStatus(), students);
+                    redirectAttributes.addFlashAttribute("room", roomDetails);
+                }
+                else {
+                    System.out.println("Room is null");
+                    redirectAttributes.addFlashAttribute("error", "room not found.");
+                }
+
+                return "redirect:/Rooms";
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    @GetMapping("/subWarden/searchRoom")
+    public String roomsGet(HttpSession session, @RequestParam String roomNo,
+                           @RequestParam Integer hostelId, Model model, RedirectAttributes redirectAttributes){
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
+            System.out.println("Hostel found : " + hostel.get().getName());
+            if (hostel.isPresent()){
+                model.addAttribute("hostel", hostel.get());
+                Room room = roomService.findById(new RoomID(hostelId, roomNo));
+
+                List<Allocation> allocations = allocationService.findByRoomIdAndHostelId(roomNo,hostelId);
+                List<Student> students = new ArrayList<>();
+                if (allocations != null) {
+                    for (Allocation allocation : allocations) {
+                        if (allocation.getDeallocatedDate() == null) {
+                            Student student = studentService.findById(allocation.getStudentId());
+                            students.add(student);
+                        }
+                    }
+                }
+
+                if (room != null){
+                    System.out.println("Room Found : " + room.getRoomNo());
+                }
+                else {
+                    System.out.println("Room is null");
+                }
+                model.addAttribute("room", room);
+                RoomDetails roomDetails = new RoomDetails(room.getRoomNo(), room.getHostelId(), room.getCapacity(), room.getCurrentAllocations(), room.getStatus(), students);
+                redirectAttributes.addFlashAttribute("room", roomDetails);
+                return "redirect:/Rooms";
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    @PostMapping("/subwarden/saveRoom")
+    public String saveRoom(HttpSession session,
+                           @RequestParam("status") String status,
+                           @RequestParam("capacity") Integer capacity,
+                           @RequestParam Integer hostelId,
+                           @RequestParam String roomNo,
+                           Model model){
 
         Room room = roomService.findById(new RoomID(hostelId, roomNo));
-        if(room != null) {
+        if (room != null){
             room.setCapacity(capacity);
             room.setStatus(status);
             roomService.saveRoom(room);
         }
         return "redirect:/subWarden/searchRoom?roomNo=" + roomNo + "&hostelId=" + hostelId;
+    }
+
+    @PostMapping("subWarden/addDamage")
+    public String addDamage( HttpSession session, Model model,
+                             @RequestParam String studentId,
+                             @RequestParam("hostel") Integer hostelId,
+                             @RequestParam Double fine,
+                             @RequestParam String description,
+                             RedirectAttributes redirectAttributes){
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
+
+            if (hostel.isPresent()){
+                model.addAttribute("hostel", hostel.get());
+                Student student = studentService.findById(studentId);
+                Damage damage = new Damage(hostel.get().getName(), fine, description, student);
+                damage.setPaymentStatus("unpaid");
+                damageRepo.save(damage);
+                redirectAttributes.addFlashAttribute("successMessage", "Damage report submitted successfully!");
+
+                return "redirect:/subWarden/searchStudent?studentId=" + studentId + "&hostelId=" + hostelId;
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    @PostMapping("/subWarden/deallocate")
+    public String deallocateStudent(HttpSession session, Model model,
+                                    @RequestParam String studentId,
+                                    @RequestParam Integer hostelId,
+                                    @RequestParam String roomId,
+                                    RedirectAttributes redirectAttributes){
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostelOpt = hostelRepo.findById(subWarden.get().getHostelId());
+
+            if (hostelOpt.isPresent()){
+
+                Hostel hostel = hostelOpt.get();
+                model.addAttribute("hostel", hostel);
+
+                Student student = studentService.findById(studentId);
+                student.setCurrentHostel(null);
+                studentService.saveStudent(student);
+
+                int residentialStudents = hostel.getResidentialStudents();
+                residentialStudents --;
+                hostel.setResidentialStudents(residentialStudents);
+                hostelService.saveHostel(hostel);
+
+                // Room modification
+                Room room = roomService.findById(new RoomID(hostelId, roomId));
+                int currentAllocations = room.getCurrentAllocations();
+                currentAllocations--;
+                room.setCurrentAllocations(currentAllocations);
+                roomService.saveRoom(room);
+
+                Allocation allocation = allocationService.findById(new AllocationID(studentId, hostelId, student.getAcademicYear()));
+                allocation.setDeallocatedDate(LocalDate.now());
+                allocationService.saveAllocation(allocation);
+                return "redirect:/subWarden/searchStudent?studentId=" + studentId + "&hostelId=" + hostelId;
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    @PostMapping("/subWarden/payment/verify")
+    public String verifyPayment( HttpSession session, Model model,
+                                 @RequestParam String regNum,
+                                 @RequestParam Long paymentId,
+                                 RedirectAttributes redirectAttributes) {
+
+        String email = (String) session.getAttribute("loggedInUserEmail");
+
+        Optional<SubWarden> subWarden = subWardenRepo.findByEmailIgnoreCase(email);
+        if (subWarden.isPresent()){
+            model.addAttribute("subwarden",subWarden.get());
+            Optional<Hostel> hostel = hostelRepo.findById(subWarden.get().getHostelId());
+
+            if (hostel.isPresent()){
+                model.addAttribute("hostel", hostel.get());
+
+                try {
+                    System.out.println("executed");
+                    boolean success = paymentService.verifyPayment(paymentId,regNum,hostel.get().getId());
+
+                    if (success) {
+                        redirectAttributes.addFlashAttribute("successMessage",
+                                "Payment verified successfully!");
+                    } else {
+                        redirectAttributes.addFlashAttribute("errorMessage",
+                                "Payment verification failed. Payment may already be verified.");
+                    }
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("errorMessage",
+                            "Error verifying payment: " + e.getMessage());
+                }
+
+                return "redirect:/subWardenPayments";
+            }
+            else {
+                model.addAttribute("error", "SW details not found.");
+                return "login";
+            }
+        }
+        else {
+            model.addAttribute("error", "SW details not found.");
+            return "login";
+        }
+    }
+
+    /**
+     * API endpoint to get payment details (for AJAX requests)
+     */
+    @GetMapping("/api/{paymentId}")
+    @ResponseBody
+    public Payment getPaymentDetails(@PathVariable Long paymentId) {
+        return paymentService.findById(paymentId);
+    }
+
+    /**
+     * Download payment slip
+     */
+    @GetMapping("/download/{paymentId}")
+    public String downloadSlip(@PathVariable Long paymentId, RedirectAttributes redirectAttributes) {
+        Payment payment = paymentService.findById(paymentId);
+
+        if (payment != null && payment.getSlipUrl() != null) {
+            return "redirect:" + payment.getSlipUrl();
+        }
+
+        redirectAttributes.addFlashAttribute("errorMessage", "Payment slip not found");
+        return "redirect:/subwarden/payments";
     }
 }

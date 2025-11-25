@@ -2,9 +2,11 @@ package com.hostelManagementSystem.HostelManagementSystem.controller;
 
 import com.hostelManagementSystem.HostelManagementSystem.dto.AllocationRequest;
 import com.hostelManagementSystem.HostelManagementSystem.dto.AllocationResponse;
+import com.hostelManagementSystem.HostelManagementSystem.dto.RoomAllocationRequest;
 import com.hostelManagementSystem.HostelManagementSystem.service.AllocationService;
 import com.hostelManagementSystem.HostelManagementSystem.service.HostelService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,5 +48,13 @@ public class AllocationController {
             }
         }
         return stdId;
+    }
+
+    @PostMapping("/room_allocate")
+    public ResponseEntity<String> allocateRooms(@RequestBody RoomAllocationRequest request) {
+
+        allocationService.allocateRoom(request.getRoomNo(), request.getStudentIds());
+
+        return ResponseEntity.ok("Allocation successful");
     }
 }

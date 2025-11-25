@@ -3,7 +3,6 @@ package com.hostelManagementSystem.HostelManagementSystem.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "payment")
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,46 +33,103 @@ public class Payment {
     @JoinColumn(name = "student_id", referencedColumnName = "studentId")
     private Student student;
 
-    // ---------------- Constructors ----------------
-    public Payment() {}
+    private boolean verified;
 
-    public Payment(String registrationNumber, String date, double amount, String paymentType,
-                   String semester, String slipRefNumber, String slipUrl, Student student) { // <<< Constructor Update
-        this.registrationNumber = registrationNumber;
+
+
+    // Constructor with all fields except id (id auto-generated)
+    public Payment(String date, double amount, String type, String registrationNumber,
+                   String semester, String slipRefNumber, Student student) {
         this.date = date;
         this.amount = amount;
-        this.paymentType = paymentType;
+        this.paymentType = type;
         this.semester = semester;
         this.slipRefNumber = slipRefNumber;
-        this.slipUrl = slipUrl; // <<< New field initialization
         this.student = student;
     }
 
-    // ---------------- Getters and Setters ----------------
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Payment() {
+    }
 
-    public String getRegistrationNumber() { return registrationNumber; }
-    public void setRegistrationNumber(String registrationNumber) { this.registrationNumber = registrationNumber; }
+    // getters and setters for all fields
 
-    public String getDate() { return date; }
-    public void setDate(String date) { this.date = date; }
+    public Long getId() {
+        return id;
+    }
 
-    public double getAmount() { return amount; }
-    public void setAmount(double amount) { this.amount = amount; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getPaymentType() { return paymentType; }
-    public void setPaymentType(String paymentType) { this.paymentType = paymentType; }
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
 
-    public String getSemester() { return semester; }
-    public void setSemester(String semester) { this.semester = semester; }
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+    }
 
-    public String getSlipRefNumber() { return slipRefNumber; }
-    public void setSlipRefNumber(String slipRefNumber) { this.slipRefNumber = slipRefNumber; }
+    public String getDate() {
+        return date;
+    }
 
-    public String getSlipUrl() { return slipUrl; } // <<< New Getter
-    public void setSlipUrl(String slipUrl) { this.slipUrl = slipUrl; } // <<< New Setter
+    public void setDate(String date) {
+        this.date = date;
+    }
 
-    public Student getStudent() { return student; }
-    public void setStudent(Student student) { this.student = student; }
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public String getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    public String getSemester() {
+        return semester;
+    }
+
+    public void setSemester(String semester) {
+        this.semester = semester;
+    }
+
+    public String getSlipRefNumber() {
+        return slipRefNumber;
+    }
+
+    public void setSlipRefNumber(String slipRefNumber) {
+        this.slipRefNumber = slipRefNumber;
+    }
+
+    public String getSlipUrl() {
+        return slipUrl;
+    }
+
+    public void setSlipUrl(String slipUrl) {
+        this.slipUrl = slipUrl;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
 }

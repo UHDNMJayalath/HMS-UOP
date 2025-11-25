@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface DamageRepository extends JpaRepository<Damage, Long> {
     List<Damage> findByStudent(Student student);
+
+    List<Damage> findByStudentAndHostel(Student student, String hostel);
 }

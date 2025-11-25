@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.transform.sax.SAXResult;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,10 @@ public class AllocationService {
 
     @Autowired
     private StudentService studentService;
+
+    public void saveAllocation(Allocation allocation){
+        allocationRepo.save(allocation);
+    }
 
     public void addAllocation(String studentId, Integer hostelId, Integer academicYear){
         Allocation allocation = new Allocation(studentId, hostelId, academicYear);
@@ -102,6 +107,32 @@ public class AllocationService {
 
     public List<Allocation> findByRoomIdAndHostelId(String roomId, Integer hostelId){
         return this.allocationRepo.findByRoomIdAndHostelId(roomId, hostelId);
+    }
+
+    public Allocation findById(AllocationID allocationID){
+        Optional<Allocation> allocation = this.allocationRepo.findByStudentIdAndHostelIdAndAcademicYear(allocationID.getStudentId(),
+                allocationID.getHostelId(), allocationID.getAcademicYear());
+
+        return allocation.orElse(null);
+    }
+
+    public List<Allocation> currentAllocationByHostel(Integer hostelId){
+        List<Allocation> allocations = allocationRepo.findByHostelId(hostelId);
+        List<Allocation> currentAllocations = new ArrayList<>();
+        for (Allocation allocation: allocations){
+            if (allocation.getDeallocatedDate() == null){
+                currentAllocations.add(allocation);
+            }
+        }
+        return currentAllocations;
+    }
+
+    public List<Allocation> findByHostelIdAndDeallocatedDateIsNull(Integer hostelId){
+        return this.allocationRepo.findByHostelIdAndDeallocatedDateIsNull(hostelId);
+    }
+
+    public List<Allocation> findByStudentIdAndDeallocatedDateIsNull(String studentId) {
+        return allocationRepo.findByStudentIdAndDeallocatedDateIsNull(studentId);
     }
 
 }

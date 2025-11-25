@@ -30,10 +30,7 @@ public class AuthController {
         return "signup";
     }
 
-    /**
-     * Handles the submission of the signup form.
-     * Checks both Student table AND allowed Staff patterns before registering.
-     */
+
     @PostMapping("/signup")
     public String registerUser(@RequestParam String email,
                                @RequestParam String password,
@@ -52,7 +49,7 @@ public class AuthController {
             return "signup";
         }
 
-        // 3. 🚨 Authorization Check (Student OR Staff)
+        // 3.  Authorization Check (Student OR Staff)
         boolean isStudent = dashboardRoutingService.isStudentExists(email);
         boolean isStaff = dashboardRoutingService.isAllowedStaff(email);
 

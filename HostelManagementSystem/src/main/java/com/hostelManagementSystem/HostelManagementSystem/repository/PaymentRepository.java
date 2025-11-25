@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
@@ -27,5 +28,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
                                                       @Param("semester") String semester);
 
     List<Payment> findByStudent(Student student);
+
+    List<Payment> findByVerifiedFalse();
+
+    Optional<Payment> findById(Long id);
 
 }

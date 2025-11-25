@@ -11,6 +11,8 @@ public class Damage {
     private String hostel;
     private double fine;
     private String paymentStatus;
+    private String description;
+
 
     @ManyToOne
     @JoinColumn(name = "student_id")
@@ -21,6 +23,13 @@ public class Damage {
         this.hostel = hostel;
         this.fine = fine;
         this.paymentStatus = paymentStatus;
+        this.student = student;
+    }
+
+    public Damage(String hostel, double fine, String description, Student student) {
+        this.hostel = hostel;
+        this.fine = fine;
+        this.description = description;
         this.student = student;
     }
 
@@ -66,6 +75,14 @@ public class Damage {
 
     public void setStudent(Student student) {
         this.student = student;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
 

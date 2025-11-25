@@ -21,26 +21,32 @@
     </div>
 
     <div class="mt-3 px-4 space-y-3">
-      <a href="/SubWarden_Dash_Board"
+      <a th:href="@{/SubWarden_Dash_Board}"
          class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
         <img src="images/Dashboard.svg" class="w-5 h-5" /> <span>Dashboard</span>
       </a>
 
-      <a href="/Rooms"
+      <a th:href="@{/Rooms}"
          class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
         <img src="images/Room.png" class="w-5 h-5" /> <span>Rooms</span>
       </a>
 
-      <a href="/room-allocation"
+      <a th:href="@{/room-allocation}"
          class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2">
         <img src="images/students.png" class="w-5 h-5" /> <span>Allocation</span>
       </a>
 
-      <a href="subwarden_compaints.html"
+      <a th:href="@{/subwarden_compaints}"
          class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
         <img src="images/Complain.svg" class="w-5 h-5" /> <span>Complaints</span>
       </a>
+
+      <a href="/subWardenPayments"
+         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Complain.svg" class="w-5 h-5" /> <span>Payments</span>
+      </a>
     </div>
+
   </div>
 
   <!-- Logout Button -->

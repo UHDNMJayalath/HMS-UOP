@@ -3,97 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HMS-UOP_Assistant_Distance</title>
+  <title>Sub Warden - Complaints</title>
   <link rel="icon" href="images/Logo.png" type="image/x-icon" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex h-screen">
 
-<!-- Sidebar -->
-<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full  text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
-
-
-
-  <!-- Top Section: Logo + Buttons -->
-  <div>
-    <!-- Logo -->
-    <div class="p-4 flex items-center border-b border-blue-200 justify-center">
-      <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain border-none shadow-none outline-none" />
-    </div>
-
-    <!-- Buttons -->
-    <div class="mt-3 px-4 space-y-3">
-
-      <!-- Dashboard -->
-      <a href="SubWardon-dashboard.html"
-         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
-        <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
-        <span>Students</span>
-      </a>
-
-
-      <!-- Rooms -->
-      <a href="subwarden_rooms.html"
-         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
-        <img src="images/Room.png" alt="Dashboard Icon" class="w-5 h-5" />
-        <span>Rooms</span>
-      </a>
-
-      <!-- Room allocation -->
-      <a href="room_allocation.html"
-         class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
-        <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
-        <span>Room Allocation</span>
-      </a>
-
-      <!-- complaints -->
-      <a href="subwarden_compaints.html"
-         class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2 transition duration-200">
-        <img src="images/Dashboard.svg" alt="Dashboard Icon" class="w-5 h-5" />
-        <span>Complaints</span>
-      </a>
-
-    </div>
+<div id="toast" class="fixed top-5 right-5 bg-green-500 text-white px-6 py-4 rounded-lg shadow-xl transform transition-all duration-500 translate-x-full opacity-0 flex items-center z-50 border-l-4 border-green-700">
+  <div class="mr-3">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
   </div>
-
-  <!-- Logout Button at Bottom -->
-  <footer>
-    <div class="text-center mb-6 px-4">
-      <button  method="get" type="submit" class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2">
-        <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
-        <span>Log Out</span>
-      </button>
-    </div>
-  </footer>
-
-
+  <div>
+    <h4 class="font-bold">Success!</h4>
+    <p id="toast-message" class="text-sm">Status updated successfully</p>
+  </div>
 </div>
 
-<!-- Overlay for mobile -->
+<div id="sidebar" class="w-52 bg-blue-100 text-gray-800 flex flex-col justify-between fixed lg:static left-0 top-0 h-full transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
+  <div>
+    <div class="p-4 flex items-center border-b border-blue-200 justify-center">
+      <img src="images/logo.png" alt="Hostel Logo" class="w-20 h-20 object-contain" />
+    </div>
+    <div class="mt-3 px-4 space-y-3">
+      <a href="/SubWarden_Dash_Board" class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Dashboard.svg" class="w-5 h-5" /> <span>Dashboard</span>
+      </a>
+      <a href="/Rooms" class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Room.png" class="w-5 h-5" /> <span>Rooms</span>
+      </a>
+      <a href="/room-allocation" class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/students.png" class="w-5 h-5" /> <span>Allocation</span>
+      </a>
+      <a href="/subwarden_compaints" class="w-full py-2 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Complain.svg" class="w-5 h-5" /> <span>Complaints</span>
+      </a>
+      <a href="/subWardenPayments" class="w-full py-2 bg-white text-black rounded-full font-semibold hover:bg-blue-300 flex items-center justify-start px-4 space-x-2">
+        <img src="images/Complain.svg" class="w-5 h-5" /> <span>Payments</span>
+      </a>
+    </div>
+  </div>
+  <footer>
+    <div class="text-center mb-6 px-4">
+      <a href="/logout" class="w-full py-2 bg-white text-black rounded-full font-bold hover:bg-blue-400 focus:outline-none flex items-center justify-center space-x-2 transition shadow-sm">
+        <img src="images/LogOut.png" alt="Logout Icon" class="w-5 h-5 -rotate-90" />
+        <span>Log Out</span>
+      </a>
+    </div>
+  </footer>
+</div>
+
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
 
-<!-- Main Content -->
 <div class="flex-1 overflow-auto">
   <div class="container mx-auto p-6">
 
-    <!-- Header Box -->
     <div class="bg-blue-200 rounded-lg shadow p-6 mb-6">
       <div class="flex justify-between items-center">
-        <!-- Logo + Title Together -->
         <div class="flex items-center space-x-4">
           <button id="toggle-btn" class="lg:hidden text-2xl">&#9776;</button>
           <img src="images/UniversityLogo.png" alt="University Logo" class="w-12 h-12 object-contain border-none shadow-none outline-none" />
           <h1 class="text-xl font-bold text-gray-800">HMS - UNIVERSITY OF PERADENIYA</h1>
         </div>
-
-        <!-- User Info -->
-        <div class="text-medium text-gray-600">
-          <!--                    <span class="font-medium" th:text="${student.email}">User@pdn.ac.lk</span>-->
-        </div>
+        <div class="text-medium text-gray-600"></div>
       </div>
     </div>
 
-    <!-- Complaints Table -->
     <div class="bg-white rounded-lg shadow p-6 mb-6">
       <h2 class="text-xl font-bold mb-4">Complaints</h2>
 
@@ -110,34 +84,32 @@
           </thead>
           <tbody>
           <tr th:each="complaint : ${complaints}" class="hover:bg-gray-50">
-            <td class="px-4 py-2 border" th:text="${complaint.date}">2025-08-12</td>
-            <td class="px-4 py-2 border" th:text="${complaint.registrationNumber}">S20XXXX</td>
-            <td class="px-4 py-2 border" th:text="${complaint.shortDescription}">Water leakage in room</td>
 
-            <!-- Colored Status Label -->
+            <td class="px-4 py-2 border" th:text="${complaint.date}">2025-08-12</td>
+
+            <td class="px-4 py-2 border" th:text="${complaint.registrationNumber}">S20XXXX</td>
+
+            <td class="px-4 py-2 border" th:text="${complaint.shortDescription}">Water leakage...</td>
+
             <td class="px-4 py-2 border text-center">
-  <span th:classappend="${complaint.state} == null || ${complaint.state} == 'Not Taken' ? 'bg-red-500' :
-                         ${complaint.state} == 'Pending' ? 'bg-yellow-500' :
-                         ${complaint.state} == 'Completed' ? 'bg-green-500' : 'bg-gray-400'"
-        class="text-white px-2 py-1 rounded text-sm font-semibold"
-        th:text="${complaint.state} != null ? ${complaint.state} : 'Not Taken'">
-    Not Taken
-  </span>
+                <span th:classappend="${(complaint.state == 'Not Taken') ? 'bg-red-500' :
+                                        (complaint.state == 'Pending' ? 'bg-yellow-500' :
+                                        (complaint.state == 'Completed' ? 'bg-green-500' : 'bg-gray-400'))}"
+                      class="text-white px-2 py-1 rounded text-sm font-semibold"
+                      th:text="${complaint.state}">
+                    Not Taken
+                </span>
             </td>
 
-            <!-- Dropdown + Save Button -->
             <td class="px-4 py-2 border text-center">
-              <select th:id="'state-' + ${complaint.id}"
-                      class="px-2 py-1 border border-gray-300 rounded-lg">
-                <option value="Not Taken"
-                        th:selected="${complaint.state} == null || ${complaint.state} == 'Not Taken'">
-                  Not Taken
-                </option>
-                <option value="Pending" th:selected="${complaint.state} == 'Pending'">Pending</option>
-                <option value="Completed" th:selected="${complaint.state} == 'Completed'">Completed</option>
+              <select th:id="'state-' + ${complaint.id}" class="px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="Not Taken" th:selected="${complaint.state == 'Not Taken'}">Not Taken</option>
+                <option value="Pending" th:selected="${complaint.state == 'Pending'}">Pending</option>
+                <option value="Completed" th:selected="${complaint.state == 'Completed'}">Completed</option>
               </select>
-              <button onclick="saveComplaintStatus([[${complaint.id}]])"
-                      class="ml-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+
+              <button th:onclick="'saveComplaintStatus(' + ${complaint.id} + ', this)'"
+                      class="ml-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200">
                 Save
               </button>
             </td>
@@ -147,53 +119,91 @@
       </div>
     </div>
 
-
-
   </div>
-
-
 </div>
-
 
 <script>
   const sidebar = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('toggle-btn');
   const overlay = document.getElementById('overlay');
 
-  toggleBtn.addEventListener('click', () => {
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
       const isOpen = !sidebar.classList.contains('-translate-x-full');
-
       sidebar.classList.toggle('-translate-x-full');
       overlay.classList.toggle('hidden', isOpen);
-  });
+    });
+  }
 
-  overlay.addEventListener('click', () => {
+  if (overlay) {
+    overlay.addEventListener('click', () => {
       sidebar.classList.add('-translate-x-full');
       overlay.classList.add('hidden');
-  });
+    });
+  }
 
-  function saveComplaintStatus(id) {
-    const state = document.getElementById(`state-${id}`).value;
+  function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-message');
+
+    toastMsg.innerText = message;
+
+    if (isError) {
+      toast.classList.remove('bg-green-500', 'border-green-700');
+      toast.classList.add('bg-red-500', 'border-red-700');
+    } else {
+      toast.classList.remove('bg-red-500', 'border-red-700');
+      toast.classList.add('bg-green-500', 'border-green-700');
+    }
+
+    toast.classList.remove('translate-x-full', 'opacity-0');
+
+    setTimeout(() => {
+      toast.classList.add('translate-x-full', 'opacity-0');
+    }, 2000);
+  }
+
+  function saveComplaintStatus(id, btnElement) {
+    const stateElement = document.getElementById('state-' + id);
+    if (!stateElement) {
+      console.error("Element not found for ID:", id);
+      return;
+    }
+
+    const state = stateElement.value;
+    const originalText = btnElement.innerText;
+
+    btnElement.innerText = "Saving...";
+    btnElement.disabled = true;
+    btnElement.classList.add('opacity-50', 'cursor-not-allowed');
 
     fetch(`/complaints/update/${id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state })
+      body: JSON.stringify({ state: state })
     })
-    .then(res => {
-      if (res.ok) {
-        alert("Complaint status updated successfully");
-        location.reload(); // Refresh to update label color
-      } else {
-        alert("Failed to update complaint status");
-      }
-    });
+            .then(res => {
+              if (res.ok) {
+                showToast("Complaint status updated successfully!");
+                setTimeout(() => {
+                  location.reload();
+                }, 1000);
+              } else {
+                showToast("Failed to update status", true);
+                btnElement.innerText = originalText;
+                btnElement.disabled = false;
+                btnElement.classList.remove('opacity-50', 'cursor-not-allowed');
+              }
+            })
+            .catch(error => {
+              console.error("Error updating status:", error);
+              showToast("An error occurred while updating.", true);
+              btnElement.innerText = originalText;
+              btnElement.disabled = false;
+              btnElement.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
   }
-
-
-
 </script>
-
 
 </body>
 </html>

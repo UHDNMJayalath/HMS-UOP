@@ -9,6 +9,12 @@ public class AllocationID implements Serializable {
     private Integer hostelId;
     private Integer academicYear;
 
+    public AllocationID(String studentId, Integer hostelId, Integer academicYear) {
+        this.studentId = studentId;
+        this.hostelId = hostelId;
+        this.academicYear = academicYear;
+    }
+
     public AllocationID() {
     }
 
