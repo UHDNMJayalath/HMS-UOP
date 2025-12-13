@@ -74,23 +74,6 @@ The project follows a **Monolithic Architecture** using the **Model-View-Control
   * **RBAC:** Strict access control ensures students cannot access administrative data.
   * **Domain-Based Routing:** The system automatically routes users to their specific dashboard based on their email domain (e.g., `@sci.pdn.ac.lk` -\> Science Dean, `@eng.pdn.ac.lk` -\> Engineering Dean).
 
------
-
-## 📸 System Screenshots
-
-### Unified Login Portal
-
-*Secure, single sign-on interface with institutional email validation.*
-
-### Student Dashboard
-
-*Tabbed interface for Profile, History, and Service Desk.*
-\!(images/student\_dash\_placeholder.png)
-
-### Bursar Dashboard
-
-*Financial search and record verification.*
-\!(images/bursar\_dash\_placeholder.png)
 
 -----
 
