@@ -2,10 +2,10 @@
 
 # Hostel Management System (HMS-UOP)
 
-\!([https://img.shields.io/badge/Spring\_Boot-3.0-6DB33F?style=for-the-badge\&logo=spring-boot\&logoColor=white](https://www.google.com/search?q=https://img.shields.io/badge/Spring_Boot-3.0-6DB33F%3Fstyle%3Dfor-the-badge%26logo%3Dspring-boot%26logoColor%3Dwhite))
-\!([https://img.shields.io/badge/Thymeleaf-Renderer-005F0F?style=for-the-badge\&logo=thymeleaf\&logoColor=white](https://www.google.com/search?q=https://img.shields.io/badge/Thymeleaf-Renderer-005F0F%3Fstyle%3Dfor-the-badge%26logo%3Dthymeleaf%26logoColor%3Dwhite))
-\!([https://img.shields.io/badge/Tailwind\_CSS-Styling-38B2AC?style=for-the-badge\&logo=tailwind-css\&logoColor=white](https://www.google.com/search?q=https://img.shields.io/badge/Tailwind_CSS-Styling-38B2AC%3Fstyle%3Dfor-the-badge%26logo%3Dtailwind-css%26logoColor%3Dwhite))
-\!([https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge\&logo=mysql\&logoColor=white](https://www.google.com/search?q=https://img.shields.io/badge/MySQL-Database-4479A1%3Fstyle%3Dfor-the-badge%26logo%3Dmysql%26logoColor%3Dwhite))
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Thymeleaf](https://img.shields.io/badge/Thymeleaf-Renderer-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Styling-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 
 ## 📌 Project Overview
 
